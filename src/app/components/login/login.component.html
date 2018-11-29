@@ -1,0 +1,42 @@
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12 col-md-6 offset-md-3">
+      <form [formGroup]="loginForm" novalidate (ngSubmit)="onSubmit()">
+        <mat-card class="shipping-card">
+          <mat-card-header>
+            <mat-card-title>Inicio de Sesion</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+
+            <div class="row">
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <input  matInput placeholder="Usuario" formControlName="username" >
+                  <mat-error *ngIf="loginForm.controls['username'].hasError('required')">
+                    El usuario es <strong>obligatorio.</strong>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col">
+                <mat-form-field class="full-width">
+                  <input  matInput placeholder="Contraseña" formControlName="password" >
+                  <mat-error *ngIf="loginForm.controls['password'].hasError('required')">
+                    La contraseña es <strong>obligatoria.</strong>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+
+          </mat-card-content>
+          <mat-card-actions>
+            <button [disabled]="!loginForm.valid" mat-raised-button color="primary" type="submit">Enviar</button>
+          </mat-card-actions>
+
+        </mat-card>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #drawer class="sidenav" fixedInViewport="true" [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+    [mode]="(isHandset$ | async) ? 'over' : 'side'" [opened]="!(isHandset$ | async)">
+    <mat-toolbar>Menu</mat-toolbar>
+    <mat-nav-list>
+        <a mat-list-item [routerLink]="['/']">Inicio</a>
+      <a mat-list-item [routerLink]="['/pending']">Envío Facturas</a>
+      <!-- <a mat-list-item [routerLink]="['/transaccion']">Importación CUFE</a> -->
+      <a mat-list-item [routerLink]="['/downloadpdf']">Descarga PDF</a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <mat-toolbar-row>
+        <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawer.toggle()" *ngIf="isHandset$ | async">
+          <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+        </button>
+        <span>Facturación Electronica</span>
+        <!-- This fills the remaining space of the current row -->
+        <span class="example-fill-remaining-space"></span>
+
+        <button mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon>account_circle</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="logoff()">
+            <mat-icon>power_settings_new</mat-icon>
+            <span>Cerrar Sesion</span>
+          </button>
+        </mat-menu>
+      </mat-toolbar-row>
+
+    </mat-toolbar>
+    <!-- Add Content Here -->
+
+      <router-outlet></router-outlet>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>
