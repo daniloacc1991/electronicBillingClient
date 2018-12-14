@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { Title } from '@angular/platform-browser';
+import { map } from 'rxjs/operators';
 
 import { InvoiceService } from '../../services/invoice.service';
 import { ComfiarService } from '../../services/index';
@@ -23,7 +24,7 @@ export interface InvoiceSentsElement {
 export class InvoicePdfComponent implements OnInit {
   pdfSrc: any;
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns: string[] = ['position', 'name', 'empresa', 'transaccion', 'cufe', 'enviar'];
+  displayedColumns: string[] = ['position', 'name', 'typeinvoce', 'empresa', 'transaccion', 'enviar'];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -37,38 +38,36 @@ export class InvoicePdfComponent implements OnInit {
     private _as: AuthService,
     private _cs: ComfiarService,
     private _titleService: Title) {
-    this._titleService.setTitle('Consultar PDF - Facturación Electrónica')
+    this._titleService.setTitle('Consultar PDF - Facturación Electrónica');
   }
 
   ngOnInit() {
-    console.log(this._as.validToken());
     this._is.invoiceSend(this._as.getDataUser().username).subscribe(
-      res => {
-        this.dataSource.data = res.data;
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
-      },
-      err => {
-        console.log(err);
-      }
-    )
+        res => {
+          this.dataSource.data = res.data.rows;
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+        },
+        err => {
+          console.log(err);
+        }
+      );
   }
 
   async pdf(position: number, invoice: string, transaccion: number) {
     this.dataSource.data[position].status = true;
     await this._is.verifyToken(this._as.getDataUser());
-    const dataToken = this._as.getToken()
+    const dataToken = this._as.getToken();
     this._cs.donwloadPDF(dataToken, invoice, transaccion).subscribe(
       resPDF => {
-        console.log(resPDF.data)
-        this.converToPdf(resPDF.data.DescargarPdfResult, invoice)
+        this.converToPdf(resPDF.data.rows, invoice);
         this.dataSource.data[position].status = false;
       },
       errPDF => {
         console.error(errPDF);
         this.dataSource.data[position].status = false;
       }
-    )
+    );
   }
 
   converToPdf(pdfBase64: string, invoice: string) {

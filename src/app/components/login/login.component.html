@@ -1,6 +1,6 @@
 <div class="container">
   <div class="row">
-    <div class="col-xs-12 col-md-6 offset-md-3">
+    <div class="col-xs-12 col-md-6 offset-md-3 col-sm-12">
       <form [formGroup]="loginForm" novalidate (ngSubmit)="onSubmit()">
         <mat-card class="shipping-card">
           <mat-card-header>
@@ -11,7 +11,7 @@
             <div class="row">
               <div class="col">
                 <mat-form-field class="full-width">
-                  <input  matInput placeholder="Usuario" formControlName="username" >
+                  <input matInput placeholder="Usuario" formControlName="username">
                   <mat-error *ngIf="loginForm.controls['username'].hasError('required')">
                     El usuario es <strong>obligatorio.</strong>
                   </mat-error>
@@ -22,7 +22,7 @@
             <div class="row">
               <div class="col">
                 <mat-form-field class="full-width">
-                  <input  matInput placeholder="Contraseña" formControlName="password" >
+                  <input matInput type="password" placeholder="Contraseña" formControlName="password">
                   <mat-error *ngIf="loginForm.controls['password'].hasError('required')">
                     La contraseña es <strong>obligatoria.</strong>
                   </mat-error>
@@ -30,11 +30,16 @@
               </div>
             </div>
 
-          </mat-card-content>
-          <mat-card-actions>
-            <button [disabled]="!loginForm.valid" mat-raised-button color="primary" type="submit">Enviar</button>
-          </mat-card-actions>
+            <div class="row">
+              <div class="col text-center">
+                <p class="mat-error">{{ _messageError }}</p>
+              </div>
+            </div>
 
+          </mat-card-content>
+          <mat-card-actions class="text-center">
+            <button class="full-width" [disabled]="!loginForm.valid" mat-raised-button color="primary" type="submit">Enviar</button>
+          </mat-card-actions>
         </mat-card>
       </form>
     </div>

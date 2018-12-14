@@ -1,4 +1,8 @@
 export interface ResponseModel {
-  data: any;
-  msj?:string;
+  success: boolean;
+  data: {
+    rows: any;
+  };
+  message?: any;
+  msj?: any;
 }

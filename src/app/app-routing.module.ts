@@ -7,6 +7,7 @@ import { LoginComponent } from './components/login/login.component';
 import { NavigationComponent } from './components/shared/navigation/navigation.component';
 import { InvoicePendingComponent } from './components/invoice-pending/invoice-pending.component';
 import { InvoicePdfComponent } from './components/invoice-pdf/invoice-pdf.component';
+import { PendingCufeComponent } from './components/pending-cufe/pending-cufe.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -15,7 +16,8 @@ const routes: Routes = [
     children: [
       { path: '', component: HomeComponent, canActivate: [AuthGuard] },
       { path: 'pending', component: InvoicePendingComponent, canActivate: [AuthGuard] },
-      { path: 'downloadpdf', component: InvoicePdfComponent, canActivate: [AuthGuard] }
+      { path: 'downloadpdf', component: InvoicePdfComponent, canActivate: [AuthGuard] },
+      { path: 'pendingcufe', component: PendingCufeComponent, canActivate: [AuthGuard] }
     ]
   }
 ];

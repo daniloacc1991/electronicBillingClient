@@ -3,9 +3,9 @@
     [mode]="(isHandset$ | async) ? 'over' : 'side'" [opened]="!(isHandset$ | async)">
     <mat-toolbar>Menu</mat-toolbar>
     <mat-nav-list>
-        <a mat-list-item [routerLink]="['/']">Inicio</a>
+      <a mat-list-item [routerLink]="['/']">Inicio</a>
       <a mat-list-item [routerLink]="['/pending']">Envío Facturas</a>
-      <!-- <a mat-list-item [routerLink]="['/transaccion']">Importación CUFE</a> -->
+      <a mat-list-item [routerLink]="['/pendingcufe']">CUFE Pendiente</a>
       <a mat-list-item [routerLink]="['/downloadpdf']">Descarga PDF</a>
     </mat-nav-list>
   </mat-sidenav>
@@ -33,7 +33,7 @@
     </mat-toolbar>
     <!-- Add Content Here -->
 
-      <router-outlet></router-outlet>
+    <router-outlet></router-outlet>
 
   </mat-sidenav-content>
 </mat-sidenav-container>

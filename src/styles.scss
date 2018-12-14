@@ -262,7 +262,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   margin-left: 91.666667%;
 }
 
-@media (min-width: 576px) {
+@media (max-width: 767.99px) {
   .col-sm {
     -ms-flex-preferred-size: 0;
     flex-basis: 0;

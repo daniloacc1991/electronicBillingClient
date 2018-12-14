@@ -6,21 +6,32 @@
         <mat-card-header>
           <mat-card-title>
             {{card.title}}
-            <button mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
+
+            <mat-form-field *ngIf="card.id === 1" class="picker-card">
+              <input matInput [matDatepicker]="picker" placeholder="Seleccione una Fecha" (dateChange)="addEvent('change', $event)"
+                readonly>
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+
+            <!-- <button *ngIf="card.id !== 1" mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
               <mat-icon>more_vert</mat-icon>
             </button>
             <mat-menu #menu="matMenu" xPosition="before">
               <button mat-menu-item>Expand</button>
               <button mat-menu-item>Remove</button>
-            </mat-menu>
+            </mat-menu> -->
           </mat-card-title>
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
-          <div>
-            <pre>
-              {{ card.content | json }}
-            </pre>
-          </div>
+
+          <p-toast [style]="{marginTop: '80px'}"></p-toast>
+
+          <p-chart *ngIf="card.charts && card.id === 1" #lineCount type="{{ card.type }}" [data]="card.content" width="{{ card.width }}"
+            height="{{ card.height }}" [options]="options" (onDataSelect)="selectData($event, card1)" ></p-chart>
+          <p-chart *ngIf="card.charts && card.id !== 1" type="{{ card.type }}" [data]="card.content" width="{{ card.width }}"
+            height="{{ card.height }}" [options]="options" (onDataSelect)="selectData($event, card2)" ></p-chart>
+
         </mat-card-content>
       </mat-card>
     </mat-grid-tile>

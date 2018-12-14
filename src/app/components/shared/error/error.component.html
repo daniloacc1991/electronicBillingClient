@@ -1,5 +1,8 @@
-<h2 mat-dialog-title>Ups! Ocurrio un error en el envío de la Factura.</h2>
-<mat-dialog-content>{{ data.Message }}</mat-dialog-content>
+<h2 mat-dialog-title>{{ data.Message.name }}</h2>
+<mat-dialog-content>
+  <h4>{{ data.Message.statusCode }}</h4>
+  <p>{{ data.Message.error }}</p>
+</mat-dialog-content>
 <mat-dialog-actions>
   <button mat-stroked-button color="primary" mat-dialog-close>Cerrar</button>
 </mat-dialog-actions>

@@ -34,3 +34,15 @@ pre {
   overflow: auto;
   -ms-overflow-style: scrollbar;
 }
+
+.picker-card {
+  position: absolute;
+  top: -1px;
+  right: 10px;
+}
+
+@media (max-width: 959.99px) {
+  .picker-card {
+    width: 35%;
+  }
+}

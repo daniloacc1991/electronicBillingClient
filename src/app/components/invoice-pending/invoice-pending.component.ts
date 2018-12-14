@@ -4,6 +4,7 @@ import { MatSort, MatPaginator, MatTableDataSource } from '@angular/material';
 import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import * as js2xmlparser from 'js2xmlparser';
+import { delay, map } from 'rxjs/operators';
 
 import { ErrorComponent } from '../shared/error/error.component';
 
@@ -49,14 +50,14 @@ export class InvoicePendingComponent implements OnInit {
     this._is.invoicePending(this._as.getDataUser().username)
       .subscribe(
         res => {
-          this.dataSource.data = res.data;
+          this.dataSource.data = res.data.rows;
           this.dataSource.paginator = this.paginator;
           this.dataSource.sort = this.sort;
         },
         err => {
-          console.error(err)
+          console.error(err);
         }
-      )
+      );
   }
 
   openDialog(): void {
@@ -72,64 +73,86 @@ export class InvoicePendingComponent implements OnInit {
     await this._is.verifyToken(this._as.getDataUser());
     this._is.invoice(invoice).subscribe(
       resInvoice => {
-        const _xml = this.xmlparse(resInvoice.data)
-        const dataToken = this._as.getToken()
-        this._cs.sendInvoice(dataToken, _xml).subscribe(
+        const _xml = this.xmlparse(resInvoice.data.rows);
+        this._cs.sendInvoice(this._as.getToken(), _xml).subscribe(
           resSend => {
-            const transaccion = resSend.data.transaccion;
-            setTimeout(() => {
-              this._cs.outTransaccion(dataToken, resSend.data.transaccion).subscribe(
-                resOut => {
-                  if (resOut.data.Message === 'Error' || resOut.data.Estado._text === 'ERROR') {
-                    this.dataSource.data[position].status = false
-                    this._messageError = resOut.data.mensajes.mensaje.mensaje._text;
-                    console.log(this._messageError)
-                    this.openDialog();
-                    return;
-                  }
-                  this._is.saveTransaccion(invoice, transaccion).subscribe(
-                    resSaveT => {
-                      this._cs.resposeVoucher(dataToken, invoice, transaccion).subscribe(
-                        resVoucher => {
-                          this._is.saveCufe(resVoucher.data.cufe, invoice).subscribe(
-                            resCufe => {
-                              this.dataSource.data[position].status = false;
-                              this.router.navigate(['/donwloadPDF']);
-                            },
-                            errCufe => {
-                              this.dataSource.data[position].status = false
-                              console.error(errCufe)
-                            }
-                          )
-                        },
-                        errVoucher => {
-                          this.dataSource.data[position].status = false
-                          console.error(errVoucher)
-                        }
-                      )
-                    },
-                    errSaveT => {
-                      this.dataSource.data[position].status = false
-                      console.error(errSaveT)
-                    }
-                  )
-                },
-                errOut => {
-                  this.dataSource.data[position].status = false
-                  console.error(errOut)
-                }
+            if (!resSend.data.rows) {
+              this.dataSource.data[position].status = false;
+              this._messageError = 'Favor informar a sistemas.';
+              this.openDialog();
+              return;
+            }
+            const transaccion = resSend.data.rows.transaccion;
+            this._is.saveTransaccion(invoice, transaccion)
+              .pipe(
+                delay(5000)
               )
-            }, 3000);
+              .subscribe(
+                resSaveT => {
+                  this._cs.outTransaccion(this._as.getToken(), transaccion).subscribe(
+                    resOut => {
+                      console.log(resOut);
+                      if (resOut.data.rows.Message === 'Error' || resOut.data.rows.Estado._text === 'ERROR') {
+                        this.dataSource.data[position].status = false;
+                        this._messageError = resOut.data.rows.mensajes.mensaje.mensaje._text;
+                        this.openDialog();
+                        this._is.deleteTransaccion(invoice).subscribe(
+                          res => console.log(res),
+                          errDelete => {
+                            this._messageError = errDelete.error;
+                            this.openDialog();
+                          }
+                        );
+                      } else {
+                        this._cs.resposeVoucher(this._as.getToken(), invoice, transaccion).subscribe(
+                          resVoucher => {
+                            this._is.saveCufe(resVoucher.data.rows.cufe, invoice).subscribe(
+                              resCufe => {
+                                this.dataSource.data[position].status = false;
+                                this.router.navigate(['/downloadpdf']);
+                              },
+                              errCufe => {
+                                this.dataSource.data[position].status = false;
+                                this._messageError = errCufe.error;
+                                this.openDialog();
+                                console.error(errCufe);
+                              }
+                            );
+                          },
+                          errVoucher => {
+                            this.dataSource.data[position].status = false;
+                            this._messageError = errVoucher.error.error;
+                            this.openDialog();
+                            console.error(errVoucher);
+                          }
+                        );
+                      }
+                    },
+                    errOut => {
+                      this.dataSource.data[position].status = false;
+                      console.error(errOut);
+                      this._messageError = errOut.error.error;
+                      this.openDialog();
+                    }
+                  );
+                },
+                errSaveT => {
+                  this.dataSource.data[position].status = false;
+                  console.error(errSaveT);
+                }
+              );
           },
           errSend => {
-            this.dataSource.data[position].status = false
-            console.error(errSend)
+            this.dataSource.data[position].status = false;
+            this._messageError = errSend.error.error;
+            this.openDialog();
+            console.error(errSend);
           }
-        )
+        );
       },
       errInvoice => {
-        this.dataSource.data[position].status = false
-        console.error(errInvoice)
+        this.dataSource.data[position].status = false;
+        console.error(errInvoice);
       }
     );
   }
@@ -137,7 +160,7 @@ export class InvoicePendingComponent implements OnInit {
   saveXML(position: number, invoice: string) {
     this._is.invoice(invoice).subscribe(
       res => {
-        const _xml = this.xmlparse(res.data)
+        const _xml = this.xmlparse(res.data.rows);
         const blob = new Blob([_xml], { type: 'text/xml; charset=utf-8' });
         const link = document.createElement('a');
         link.href = window.URL.createObjectURL(blob);
@@ -147,9 +170,9 @@ export class InvoicePendingComponent implements OnInit {
         link.click();
       },
       err => {
-        console.log(err)
+        console.log(err);
       }
-    )
+    );
   }
 
   xmlparse(data: any) {
