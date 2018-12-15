@@ -11,8 +11,7 @@ export class AuthGuard implements CanActivate {
   constructor(private _as: AuthService, private router: Router) { }
 
   canActivate(): boolean {
-    const token: string = localStorage.getItem('token');
-    if (!token) {
+    if (!localStorage.getItem('token')) {
       localStorage.clear();
       this.router.navigate(['/login']);
       return false;
@@ -24,7 +23,7 @@ export class AuthGuard implements CanActivate {
   //   next: ActivatedRouteSnapshot,
   //   state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
   //     if (!this._as.loggedIn) {
-  //       localStorage.clear()
+  //       localStorage.clear();
   //       this.router.navigate(['/login']);
   //       return false;
   //     }

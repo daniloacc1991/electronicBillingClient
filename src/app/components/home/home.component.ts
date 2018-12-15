@@ -4,11 +4,13 @@ import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter } from '@angular/material-moment-adapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatDialog } from '@angular/material/dialog';
 
 import { UIChart } from 'primeng/primeng';
-import { SelectItem } from 'primeng/components/common/api';
-import { Message } from 'primeng/components/common/api';
+// import { SelectItem } from 'primeng/components/common/api';
+// import { Message } from 'primeng/components/common/api';
 import { MessageService } from 'primeng/components/common/messageservice';
+import { LoginComfiarComponent } from '../login-comfiar/login-comfiar.component';
 
 import { InvoiceService } from '../../services/invoice.service';
 import { AuthService } from '../../auth/auth.service';
@@ -278,26 +280,35 @@ export class HomeComponent implements OnInit {
     );
 
   constructor(private breakpointObserver: BreakpointObserver, private _is: InvoiceService,
-    private _as: AuthService, private adapter: DateAdapter<any>, private messageService: MessageService) {
+    private _as: AuthService, private adapter: DateAdapter<any>, private messageService: MessageService,
+    public _dialogLogin: MatDialog) {
+      if (!localStorage.getItem('user')) {
+        this.openDialog();
+      }
   }
 
   ngOnInit() {
     this.forYear(new Date(), false);
+    this._is.invoicesForUser()
+      .subscribe(
+        res => {
+          res.data.rows.map(r => {
+            this.constents.card2.datasets[0].data.push(r.pending);
+            this.constents.card2.datasets[0].data.push(r.pending_cufe);
+            this.constents.card2.datasets[0].data.push(r.send);
+          });
+        }
+      );
+  }
 
-    this._is.invoicesForUser(this._as.getDataUser().username)
-    .subscribe(
-      res => {
-        res.data.rows.map(r => {
-          this.constents.card2.datasets[0].data.push(r.pending);
-          this.constents.card2.datasets[0].data.push(r.pending_cufe);
-          this.constents.card2.datasets[0].data.push(r.send);
-        });
-      }
-    );
+  openDialog(): void {
+    const dialogRef = this._dialogLogin.open(LoginComfiarComponent, {
+      minWidth: '40%',
+    });
   }
 
   forYear(date: any, refresh: boolean) {
-    this._is.invoiceForYearxUser(this.dateString(date), this._as.getDataUser().username)
+    this._is.invoiceForYearxUser(this.dateString(date))
       .subscribe(
         res => {
           this.constents.card1.labels = [];
@@ -335,6 +346,6 @@ export class HomeComponent implements OnInit {
     card === 'card1' ? data = this.constents.card1 : data = this.constents.card2;
     const title = data.labels[event.element._datasetIndex];
     const detail = data.datasets[event.element._datasetIndex].data[event.element._index];
-    this.messageService.add({severity: 'success', summary: title, detail: detail, life: 3000 });
-}
+    this.messageService.add({ severity: 'success', summary: title, detail: detail, life: 3000 });
+  }
 }

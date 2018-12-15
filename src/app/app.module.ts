@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { LayoutModule } from '@angular/cdk/layout';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
@@ -36,6 +36,7 @@ import { InvoicePendingComponent } from './components/invoice-pending/invoice-pe
 import { ErrorComponent } from './components/shared/error/error.component';
 import { InvoicePdfComponent } from './components/invoice-pdf/invoice-pdf.component';
 import { PendingCufeComponent } from './components/pending-cufe/pending-cufe.component';
+import { LoginComfiarComponent } from './components/login-comfiar/login-comfiar.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { PendingCufeComponent } from './components/pending-cufe/pending-cufe.com
     ErrorComponent,
     InvoicePdfComponent,
     PendingCufeComponent,
+    LoginComfiarComponent,
   ],
   imports: [
     BrowserModule,
@@ -76,10 +78,12 @@ import { PendingCufeComponent } from './components/pending-cufe/pending-cufe.com
     ChartModule,
     ToastModule,
     MessagesModule,
-    MessageModule
+    MessageModule,
+    FormsModule
   ],
   entryComponents: [
-    ErrorComponent
+    ErrorComponent,
+    LoginComfiarComponent
   ],
   providers: [
     AuthGuard

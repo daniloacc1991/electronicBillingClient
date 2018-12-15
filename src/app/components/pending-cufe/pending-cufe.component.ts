@@ -23,20 +23,25 @@ export interface InvoiceSentsElement {
   styleUrls: ['./pending-cufe.component.scss'],
 })
 export class PendingCufeComponent implements OnInit {
-  @ViewChild(MatPaginator) paginator: MatPaginator;
-  @ViewChild(MatSort) sort: MatSort;
-  dataSource = new MatTableDataSource<InvoiceSentsElement>();
-  _messageError: string;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns: string[] = ['position', 'name', 'empresa', 'transaccion', 'enviar'];
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
+  dataSource = new MatTableDataSource<InvoiceSentsElement>();
+  _messageError: any;
+
+  applyFilter(filterValue: string) {
+    this.dataSource.filter = filterValue.trim().toLowerCase();
+  }
 
   constructor(private _is: InvoiceService, private _cs: ComfiarService,
     private _as: AuthService, private router: Router,
     public _dialogError: MatDialog ) { }
 
   ngOnInit() {
-    this._is.cufePending(this._as.getDataUser().username)
+    this._is.cufePending()
       .subscribe(
         res => {
           this.dataSource.data = res.data.rows;

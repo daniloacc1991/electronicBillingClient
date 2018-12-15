@@ -1,0 +1,33 @@
+<h1 mat-dialog-title>Login Comfiar</h1>
+<div mat-dialog-content>
+
+  <form [formGroup]="loginForm" novalidate (ngSubmit)="onSubmit()">
+
+    <div class="row">
+      <div class="col">
+        <mat-form-field class="full-width">
+          <input matInput placeholder="Usuario" formControlName="username">
+          <mat-error *ngIf="loginForm.controls['username'].hasError('required')">
+            El usuario es <strong>obligatorio.</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col">
+        <mat-form-field class="full-width">
+          <input matInput type="password" placeholder="Contraseña" formControlName="password">
+          <mat-error *ngIf="loginForm.controls['password'].hasError('required')">
+            La contraseña es <strong>obligatoria.</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+  </form>
+
+</div>
+<div mat-dialog-actions>
+  <button class="full-width" mat-raised-button color="primary" mat-button cdkFocusInitial (click)="onClick()">Guardar</button>
+</div>

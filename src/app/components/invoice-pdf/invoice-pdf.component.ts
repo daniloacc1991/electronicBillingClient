@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { Title } from '@angular/platform-browser';
-import { map } from 'rxjs/operators';
 
 import { InvoiceService } from '../../services/invoice.service';
 import { ComfiarService } from '../../services/index';
@@ -42,7 +41,7 @@ export class InvoicePdfComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._is.invoiceSend(this._as.getDataUser().username).subscribe(
+    this._is.invoiceSend().subscribe(
         res => {
           this.dataSource.data = res.data.rows;
           this.dataSource.paginator = this.paginator;

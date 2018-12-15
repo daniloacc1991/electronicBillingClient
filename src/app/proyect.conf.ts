@@ -1,3 +1,5 @@
+import { environment } from '../environments/environment';
+
 export class AppSettings {
-  public static backApi = 'http://localhost:3000/';
+  public static backApi = `http://${environment.host}:${environment.port}/`;
 }

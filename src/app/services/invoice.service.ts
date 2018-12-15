@@ -15,13 +15,13 @@ export class InvoiceService {
   private backAPI = `${AppSettings.backApi}v0/invoice/`;
   headers = new HttpHeaders({
     // tslint:disable-next-line:max-line-length
-    'Authorization': 'Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NDQ3MDY5MTIzMjAsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMCIsInN1YiI6IjEwOTg3MDc3ODYiLCJqdGkiOjE4OSwic2NvcGUiOiJVU0VSIiwiaWF0IjoxNTQ0NTM0MTEyfQ.UgbplOawcBcPGkwvIdGsD-EH5v7T34GZfVBsG6ny95o31j3JbZJ0-uIUNFgYw9XFmzoEoi5Nvyinv8Mt549xsw'
+    'Authorization': `Bearer ${JSON.parse(localStorage.getItem('token')).token}`
   });
 
   constructor(private _http: HttpClient, private _as: AuthService) { }
 
-  invoicePending(user: string) {
-    return this._http.get<ResponseModel>(`${this.backAPI}pending/${user}`, { headers: this.headers });
+  invoicePending() {
+    return this._http.get<ResponseModel>(`${this.backAPI}pending`, { headers: this.headers });
   }
 
   invoice(factura: string) {
@@ -35,8 +35,8 @@ export class InvoiceService {
     return this._http.put<ResponseModel>(`${this.backAPI}savetransaccion`, httpParams, { headers: this.headers });
   }
 
-  cufePending(user: string) {
-    return this._http.get<ResponseModel>(`${this.backAPI}cufePending/${user}`, { headers: this.headers });
+  cufePending() {
+    return this._http.get<ResponseModel>(`${this.backAPI}cufePending`, { headers: this.headers });
   }
 
   deleteTransaccion(invoice: string) {
@@ -50,21 +50,18 @@ export class InvoiceService {
     return this._http.put<ResponseModel>(`${this.backAPI}saveCufe`, httpParams, { headers: this.headers });
   }
 
-  invoiceSend(user: string) {
-    return this._http.get<ResponseModel>(`${this.backAPI}invoicesSent/${user}`, { headers: this.headers });
+  invoiceSend() {
+    return this._http.get<ResponseModel>(`${this.backAPI}invoicesSent`, { headers: this.headers });
   }
 
-  invoiceForYearxUser(date: string, user: string) {
+  invoiceForYearxUser(date: string) {
     const httpParams = new HttpParams()
-      .append('date', date)
-      .append('user', user);
+      .append('date', date);
     return this._http.post<ResponseModel>(`${this.backAPI}foryearxuser`, httpParams, { headers: this.headers });
   }
 
-  invoicesForUser(user: string) {
-    const httpParams = new HttpParams()
-      .append('user', user);
-    return this._http.post<ResponseModel>(`${this.backAPI}electronicforuser`, httpParams, { headers: this.headers });
+  invoicesForUser() {
+    return this._http.get<ResponseModel>(`${this.backAPI}electronicforuser`, { headers: this.headers });
   }
 
   verifyToken(user: LoginModel) {

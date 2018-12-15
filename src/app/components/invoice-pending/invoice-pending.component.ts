@@ -4,7 +4,7 @@ import { MatSort, MatPaginator, MatTableDataSource } from '@angular/material';
 import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import * as js2xmlparser from 'js2xmlparser';
-import { delay, map } from 'rxjs/operators';
+import { delay } from 'rxjs/operators';
 
 import { ErrorComponent } from '../shared/error/error.component';
 
@@ -47,7 +47,7 @@ export class InvoicePendingComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._is.invoicePending(this._as.getDataUser().username)
+    this._is.invoicePending()
       .subscribe(
         res => {
           this.dataSource.data = res.data.rows;

@@ -33,17 +33,9 @@ export class LoginComponent {
     this._as.login(loginData.username, loginData.password)
       .subscribe(
         res => {
-          if (!res.msj) {
-            localStorage.setItem('token', JSON.stringify(res.data.rows));
-            localStorage.setItem('user', JSON.stringify(loginData));
-            this.router.navigate(['/']);
-          } else {
-              this._messageError = res.msj;
-              console.log(this._messageError);
-              this.openDialog();
-              return;
-
-          }
+          localStorage.setItem('token', JSON.stringify(res.data));
+          // localStorage.setItem('user', JSON.stringify(loginData));
+          this.router.navigate(['/']);
         },
         err => {
           console.error(err);
