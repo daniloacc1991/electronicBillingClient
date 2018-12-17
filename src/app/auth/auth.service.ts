@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 import { LoginModel } from '../models/login';
@@ -53,14 +53,5 @@ export class AuthService {
     } else {
       return false;
     }
-  }
-
-  validToken() {
-    const dateNow = new Date().valueOf();
-    const dateToken = new Date(this.getToken().date).valueOf();
-    if (dateToken < dateNow) {
-      return false;
-    }
-    return true;
   }
 }

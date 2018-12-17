@@ -42,28 +42,35 @@ export class InvoicePdfComponent implements OnInit {
 
   ngOnInit() {
     this._is.invoiceSend().subscribe(
-        res => {
-          this.dataSource.data = res.data.rows;
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
-        },
-        err => {
-          console.log(err);
-        }
-      );
+      res => {
+        this.dataSource.data = res.data.rows;
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+      },
+      err => {
+        console.log(err);
+      }
+    );
   }
 
-  async pdf(position: number, invoice: string, transaccion: number) {
+  pdf(position: number, invoice: string, transaccion: number) {
     this.dataSource.data[position].status = true;
-    await this._is.verifyToken(this._as.getDataUser());
-    const dataToken = this._as.getToken();
-    this._cs.donwloadPDF(dataToken, invoice, transaccion).subscribe(
-      resPDF => {
-        this.converToPdf(resPDF.data.rows, invoice);
-        this.dataSource.data[position].status = false;
+    const dataCom = this._as.getDataUser();
+    this._cs.loginComfiar(dataCom.username, dataCom.password).subscribe(
+      resLogin => {
+        this._cs.donwloadPDF(resLogin.data.rows, invoice, transaccion).subscribe(
+          resPDF => {
+            this.converToPdf(resPDF.data.rows, invoice);
+            this.dataSource.data[position].status = false;
+          },
+          errPDF => {
+            console.error(errPDF);
+            this.dataSource.data[position].status = false;
+          }
+        );
       },
-      errPDF => {
-        console.error(errPDF);
+      errLogin => {
+        console.error(errLogin);
         this.dataSource.data[position].status = false;
       }
     );

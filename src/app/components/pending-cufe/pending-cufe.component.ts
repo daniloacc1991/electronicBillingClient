@@ -38,7 +38,7 @@ export class PendingCufeComponent implements OnInit {
 
   constructor(private _is: InvoiceService, private _cs: ComfiarService,
     private _as: AuthService, private router: Router,
-    public _dialogError: MatDialog ) { }
+    public _dialogError: MatDialog) { }
 
   ngOnInit() {
     this._is.cufePending()
@@ -64,28 +64,37 @@ export class PendingCufeComponent implements OnInit {
 
   async consultarCufe(position: number, invoice: string, transaccion: number) {
     this.dataSource.data[position].status = true;
-    await this._as.validToken();
-    // this._cs.resposeVoucher(this._as.getToken, invoice,  )
-    this._cs.resposeVoucher(this._as.getToken(), invoice, transaccion).subscribe(
-      resVoucher => {
-        this._is.saveCufe(resVoucher.data.rows.cufe, invoice).subscribe(
-          resCufe => {
-            this.dataSource.data[position].status = false;
-            this.router.navigate(['/downloadpdf']);
+    const dataCom = this._as.getDataUser();
+    this._cs.loginComfiar(dataCom.username, dataCom.password).subscribe(
+      resLogin => {
+        this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion).subscribe(
+          resVoucher => {
+            this._is.saveCufe(resVoucher.data.rows.cufe, invoice).subscribe(
+              resCufe => {
+                this.dataSource.data[position].status = false;
+                this.router.navigate(['/downloadpdf']);
+              },
+              errCufe => {
+                this.dataSource.data[position].status = false;
+                this._messageError = errCufe.error;
+                this.openDialog();
+                console.error(errCufe);
+              }
+            );
           },
-          errCufe => {
+          errVoucher => {
             this.dataSource.data[position].status = false;
-            this._messageError = errCufe.error;
+            this._messageError = errVoucher.error.error;
             this.openDialog();
-            console.error(errCufe);
+            console.error(errVoucher);
           }
         );
       },
-      errVoucher => {
+      errLogin => {
         this.dataSource.data[position].status = false;
-        this._messageError = errVoucher.error.error;
+        this._messageError = errLogin.error.error;
         this.openDialog();
-        console.error(errVoucher);
+        console.error(errLogin);
       }
     );
   }

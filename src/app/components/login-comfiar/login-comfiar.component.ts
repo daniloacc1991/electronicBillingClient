@@ -2,6 +2,8 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
+import { ComfiarService } from '../../services/comfiar.service';
+
 import { LoginModel } from '../../models/login';
 
 export interface DialogData {
@@ -23,7 +25,8 @@ export class LoginComfiarComponent implements OnInit {
   });
 
   constructor(public _dialogRef: MatDialogRef<LoginComfiarComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData, private fb: FormBuilder) {
+    @Inject(MAT_DIALOG_DATA) public data: DialogData, private fb: FormBuilder,
+    private _cs: ComfiarService) {
       this._dialogRef.disableClose = true;
     }
 
@@ -35,9 +38,16 @@ export class LoginComfiarComponent implements OnInit {
       username: this.loginForm.value.username,
       password: this.loginForm.value.password
     };
-    localStorage.setItem('user', JSON.stringify(loginData));
-    console.log(loginData);
-    this._dialogRef.close('Echo');
+    this._cs.loginComfiar( this.loginForm.value.username, this.loginForm.value.password).subscribe(
+      res => {
+        console.log(res);
+        localStorage.setItem('user', JSON.stringify(loginData));
+        this._dialogRef.close('Echo');
+      },
+      err => {
+        console.error(err);
+      }
+    );
   }
 
 }

@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { LayoutModule } from '@angular/cdk/layout';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -37,6 +37,8 @@ import { ErrorComponent } from './components/shared/error/error.component';
 import { InvoicePdfComponent } from './components/invoice-pdf/invoice-pdf.component';
 import { PendingCufeComponent } from './components/pending-cufe/pending-cufe.component';
 import { LoginComfiarComponent } from './components/login-comfiar/login-comfiar.component';
+
+import { Autorization } from './interceptors/authorization';
 
 @NgModule({
   declarations: [
@@ -86,6 +88,7 @@ import { LoginComfiarComponent } from './components/login-comfiar/login-comfiar.
     LoginComfiarComponent
   ],
   providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: Autorization, multi: true },
     AuthGuard
   ],
   bootstrap: [AppComponent]
