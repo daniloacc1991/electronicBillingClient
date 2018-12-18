@@ -27,7 +27,7 @@ export class NavigationComponent implements OnInit {
     this._as.logOff()
       .subscribe(
         res => {
-          console.log(res);
+          // console.log(res);
           localStorage.removeItem('user');
           localStorage.removeItem('token');
           this.router.navigate(['/login']);

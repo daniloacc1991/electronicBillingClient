@@ -51,10 +51,9 @@ export class LoginComfiarComponent implements OnInit {
       )
       .subscribe(
         res => {
-          // console.log(res);
           this._isLoading = !this._isLoading;
           localStorage.setItem('user', JSON.stringify(loginData));
-          this._dialogRef.close('Echo');
+          this._dialogRef.close('Credenciales de COMFIAR Correctas!');
         },
         err => {
           this._isLoading = !this._isLoading;

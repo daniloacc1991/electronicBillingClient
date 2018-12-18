@@ -5,15 +5,14 @@ import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter } from '@angular/material-moment-adapter';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material';
 
 import { UIChart } from 'primeng/primeng';
-// import { SelectItem } from 'primeng/components/common/api';
-// import { Message } from 'primeng/components/common/api';
 import { MessageService } from 'primeng/components/common/messageservice';
 import { LoginComfiarComponent } from '../login-comfiar/login-comfiar.component';
 
 import { InvoiceService } from '../../services/invoice.service';
-import { AuthService } from '../../auth/auth.service';
+import { duration } from 'moment';
 
 @Component({
   selector: 'app-home',
@@ -281,10 +280,10 @@ export class HomeComponent implements OnInit {
 
   constructor(private breakpointObserver: BreakpointObserver, private _is: InvoiceService,
     private adapter: DateAdapter<any>, private messageService: MessageService,
-    public _dialogLogin: MatDialog) {
-      if (!localStorage.getItem('user')) {
-        this.openDialog();
-      }
+    public _dialogLogin: MatDialog, private snackBar: MatSnackBar) {
+    if (!localStorage.getItem('user')) {
+      this.openDialog();
+    }
   }
 
   ngOnInit() {
@@ -304,6 +303,11 @@ export class HomeComponent implements OnInit {
   openDialog(): void {
     const dialogRef = this._dialogLogin.open(LoginComfiarComponent, {
       minWidth: '40%',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(result);
+      this.snackBar.open(result, 'Cerrar', { duration: 3000 } );
     });
   }
 
@@ -349,3 +353,14 @@ export class HomeComponent implements OnInit {
     this.messageService.add({ severity: 'success', summary: title, detail: detail, life: 3000 });
   }
 }
+
+// @Component({
+//   selector: 'app-snack-bar',
+//   templateUrl: './snack-bar.component.html',
+//   styles: [`
+//   .example-pizza-party {
+//     color: hotpink;
+//   }
+// `],
+// })
+// export class SnackBarComponent { }
