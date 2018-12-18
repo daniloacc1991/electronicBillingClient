@@ -84,7 +84,7 @@ export class PendingCufeComponent implements OnInit {
           },
           errVoucher => {
             this.dataSource.data[position].status = false;
-            this._messageError = errVoucher.error.error;
+            this._messageError = errVoucher.error;
             this.openDialog();
             console.error(errVoucher);
           }

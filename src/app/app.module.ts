@@ -19,6 +19,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { ChartModule } from 'primeng/chart';
 import { ToastModule } from 'primeng/toast';
@@ -81,7 +82,8 @@ import { Autorization } from './interceptors/authorization';
     ToastModule,
     MessagesModule,
     MessageModule,
-    FormsModule
+    FormsModule,
+    MatProgressBarModule
   ],
   entryComponents: [
     ErrorComponent,

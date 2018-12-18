@@ -38,25 +38,25 @@ export class HomeComponent implements OnInit {
           borderColor: '#4bc0c0',
           data: [],
           fill: false,
-          label: 'Cantidad Año Anterior'
+          label: 'Cantidad Año Actual'
         },
         {
           borderColor: '#3f51b5',
           data: [],
           fill: true,
-          label: 'Cantidad Año Actual'
+          label: 'Cantidad Año Anterior'
         },
         {
           borderColor: '#FF6384',
           data: [],
           fill: false,
-          label: 'Valor Año Anterior'
+          label: 'Valor Año Actual'
         },
         {
           borderColor: '#36A2EB',
           data: [],
           fill: true,
-          label: 'Valor Año Actual'
+          label: 'Valor Año Anterior'
         }
       ],
       labels: []
@@ -280,7 +280,7 @@ export class HomeComponent implements OnInit {
     );
 
   constructor(private breakpointObserver: BreakpointObserver, private _is: InvoiceService,
-    private _as: AuthService, private adapter: DateAdapter<any>, private messageService: MessageService,
+    private adapter: DateAdapter<any>, private messageService: MessageService,
     public _dialogLogin: MatDialog) {
       if (!localStorage.getItem('user')) {
         this.openDialog();

@@ -73,6 +73,7 @@ export class InvoicePendingComponent implements OnInit {
     const dataCom = this._as.getDataUser();
     this._cs.loginComfiar(dataCom.username, dataCom.password).subscribe(
       resLogin => {
+        console.log(resLogin);
         this._is.invoice(invoice).subscribe(
           resInvoice => {
             const _xml = this.xmlparse(resInvoice.data.rows);
@@ -94,18 +95,6 @@ export class InvoicePendingComponent implements OnInit {
                       this._cs.outTransaccion(resLogin.data.rows, transaccion).subscribe(
                         resOut => {
                           console.log(resOut);
-                          if (resOut.data.rows.Message === 'Error' || resOut.data.rows.Estado._text === 'ERROR') {
-                            this.dataSource.data[position].status = false;
-                            this._messageError = resOut.data.rows.mensajes.mensaje.mensaje._text;
-                            this.openDialog();
-                            this._is.deleteTransaccion(invoice).subscribe(
-                              res => console.log(res),
-                              errDelete => {
-                                this._messageError = errDelete.error;
-                                this.openDialog();
-                              }
-                            );
-                          } else {
                             this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion).subscribe(
                               resVoucher => {
                                 this._is.saveCufe(resVoucher.data.rows.cufe, invoice).subscribe(
@@ -123,18 +112,24 @@ export class InvoicePendingComponent implements OnInit {
                               },
                               errVoucher => {
                                 this.dataSource.data[position].status = false;
-                                this._messageError = errVoucher.error.error;
+                                this._messageError = errVoucher.error;
                                 this.openDialog();
                                 console.error(errVoucher);
                               }
                             );
-                          }
                         },
                         errOut => {
+                          this._is.deleteTransaccion(invoice).subscribe(
+                            res => console.log(res),
+                            errDelete => {
+                              this._messageError = errDelete.error;
+                              this.openDialog();
+                            }
+                          );
                           this.dataSource.data[position].status = false;
-                          console.error(errOut);
-                          this._messageError = errOut.error.error;
+                          this._messageError = errOut.error;
                           this.openDialog();
+                          console.error(errOut);
                         }
                       );
                     },
@@ -146,7 +141,7 @@ export class InvoicePendingComponent implements OnInit {
               },
               errSend => {
                 this.dataSource.data[position].status = false;
-                this._messageError = errSend.error.error;
+                this._messageError = errSend.error;
                 this.openDialog();
                 console.error(errSend);
               }
@@ -154,12 +149,16 @@ export class InvoicePendingComponent implements OnInit {
           },
           errInvoice => {
             this.dataSource.data[position].status = false;
+            this._messageError = errInvoice.error;
+            this.openDialog();
             console.error(errInvoice);
           }
         );
       },
       errLogin => {
         this.dataSource.data[position].status = false;
+        this._messageError = errLogin.error;
+        this.openDialog();
         console.error(errLogin);
       }
     );

@@ -25,9 +25,17 @@
       </div>
     </div>
 
+    <div class="row">
+      <div class="col text-center">
+        <p class="mat-error">{{ _messageError }}</p>
+      </div>
+    </div>
+
   </form>
 
 </div>
 <div mat-dialog-actions>
-  <button class="full-width" mat-raised-button color="primary" mat-button cdkFocusInitial (click)="onClick()">Guardar</button>
+  <mat-progress-bar *ngIf="_isLoading" color="Primary" mode="indeterminate">
+  </mat-progress-bar>
+  <button *ngIf="!_isLoading" class="full-width" mat-raised-button color="primary" mat-button cdkFocusInitial (click)="onClick()">Guardar</button>
 </div>

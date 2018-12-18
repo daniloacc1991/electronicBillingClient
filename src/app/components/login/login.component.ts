@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from 'src/app/auth/auth.service';
 import { ErrorComponent } from '../shared/error/error.component';
 import { LoginModel } from '../../models/login';
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -20,26 +21,32 @@ export class LoginComponent {
     ])]
   });
   _messageError: string;
+  _isLoading = false;
 
   constructor(private fb: FormBuilder,
     private _as: AuthService, private router: Router,
     public _dialogError: MatDialog) { }
 
   onSubmit() {
+    this._isLoading = !this._isLoading;
     const loginData: LoginModel = {
       username: this.loginForm.value.username,
       password: this.loginForm.value.password
     };
     this._as.login(loginData.username, loginData.password)
+      .pipe(
+        delay(2000)
+      )
       .subscribe(
         res => {
           localStorage.setItem('token', JSON.stringify(res.data));
-          // localStorage.setItem('user', JSON.stringify(loginData));
           this.router.navigate(['/']);
+          this._isLoading = !this._isLoading;
         },
         err => {
+          this._isLoading = !this._isLoading;
           console.error(err);
-          this._messageError = err.error.message;
+          this._messageError = 'Usuario y Contraseña Incorrectos.';
         }
       );
   }

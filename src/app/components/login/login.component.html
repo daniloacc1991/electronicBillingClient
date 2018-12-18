@@ -30,7 +30,8 @@
               </div>
             </div>
 
-            <div class="row">
+            <div *ngIf="_messageError"
+              class="row">
               <div class="col text-center">
                 <p class="mat-error">{{ _messageError }}</p>
               </div>
@@ -38,7 +39,12 @@
 
           </mat-card-content>
           <mat-card-actions class="text-center">
-            <button class="full-width" [disabled]="!loginForm.valid" mat-raised-button color="primary" type="submit">Enviar</button>
+            <mat-progress-bar *ngIf="_isLoading"
+              color="Primary"
+              mode="indeterminate">
+            </mat-progress-bar>
+            <button *ngIf="!_isLoading"
+              class="full-width" [disabled]="!loginForm.valid" mat-raised-button color="primary" type="submit">Enviar</button>
           </mat-card-actions>
         </mat-card>
       </form>
