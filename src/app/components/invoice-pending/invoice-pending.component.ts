@@ -71,97 +71,106 @@ export class InvoicePendingComponent implements OnInit {
   sendInvoice(position: number, invoice: string) {
     this.dataSource.data[position].status = true;
     const dataCom = this._as.getDataUser();
-    this._cs.loginComfiar(dataCom.username, dataCom.password).subscribe(
-      resLogin => {
-        console.log(resLogin);
-        this._is.invoice(invoice).subscribe(
-          resInvoice => {
-            const _xml = this.xmlparse(resInvoice.data.rows);
-            this._cs.sendInvoice(resLogin.data.rows, _xml).subscribe(
-              resSend => {
-                if (!resSend.data.rows) {
-                  this.dataSource.data[position].status = false;
-                  this._messageError = 'Favor informar a sistemas.';
-                  this.openDialog();
-                  return;
-                }
-                const transaccion = resSend.data.rows.transaccion;
-                this._is.saveTransaccion(invoice, transaccion)
-                  .pipe(
-                    delay(4000)
-                  )
-                  .subscribe(
-                    resSaveT => {
-                      this._cs.outTransaccion(resLogin.data.rows, transaccion).subscribe(
-                        resOut => {
-                          console.log(resOut);
-                            this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion).subscribe(
-                              resVoucher => {
-                                this._is.saveCufe(resVoucher.data.rows.cufe, invoice).subscribe(
-                                  resCufe => {
-                                    this.dataSource.data[position].status = false;
-                                    this.router.navigate(['/downloadpdf']);
-                                  },
-                                  errCufe => {
-                                    this.dataSource.data[position].status = false;
-                                    this._messageError = errCufe.error;
-                                    this.openDialog();
-                                    console.error(errCufe);
-                                  }
-                                );
-                              },
-                              errVoucher => {
-                                this.dataSource.data[position].status = false;
-                                this._messageError = errVoucher.error;
+    this._cs.loginComfiar(dataCom.username, dataCom.password)
+      .pipe(
+        delay(1000)
+      )
+      .subscribe(
+        resLogin => {
+          console.log(resLogin);
+          this._is.invoice(invoice).subscribe(
+            resInvoice => {
+              const _xml = this.xmlparse(resInvoice.data.rows);
+              this._cs.sendInvoice(resLogin.data.rows, _xml).subscribe(
+                resSend => {
+                  if (!resSend.data.rows) {
+                    this.dataSource.data[position].status = false;
+                    this._messageError = 'Favor informar a sistemas.';
+                    this.openDialog();
+                    return;
+                  }
+                  const transaccion = resSend.data.rows.transaccion;
+                  this._is.saveTransaccion(invoice, transaccion)
+                    .pipe(
+                      delay(5000)
+                    )
+                    .subscribe(
+                      resSaveT => {
+                        this._cs.outTransaccion(resLogin.data.rows, transaccion).subscribe(
+                          resOut => {
+                            console.log(resOut);
+                            if (resOut.data.rows === 'CargandoComprobantes') {
+                              this.dataSource.data[position].status = false;
+                              this.router.navigate(['/pendingcufe']);
+                            } else {
+                              this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion).subscribe(
+                                resVoucher => {
+                                  this._is.saveCufe(resVoucher.data.rows.cufe, invoice).subscribe(
+                                    resCufe => {
+                                      this.dataSource.data[position].status = false;
+                                      this.router.navigate(['/downloadpdf']);
+                                    },
+                                    errCufe => {
+                                      this.dataSource.data[position].status = false;
+                                      this._messageError = errCufe.error;
+                                      this.openDialog();
+                                      console.error(errCufe);
+                                    }
+                                  );
+                                },
+                                errVoucher => {
+                                  this.dataSource.data[position].status = false;
+                                  this._messageError = errVoucher.error;
+                                  this.openDialog();
+                                  console.error(errVoucher);
+                                }
+                              );
+                            }
+                          },
+                          errOut => {
+                            this._is.deleteTransaccion(invoice).subscribe(
+                              res => console.log(res),
+                              errDelete => {
+                                this._messageError = errDelete.error;
                                 this.openDialog();
-                                console.error(errVoucher);
                               }
                             );
-                        },
-                        errOut => {
-                          this._is.deleteTransaccion(invoice).subscribe(
-                            res => console.log(res),
-                            errDelete => {
-                              this._messageError = errDelete.error;
-                              this.openDialog();
-                            }
-                          );
-                          this.dataSource.data[position].status = false;
-                          this._messageError = errOut.error;
-                          this.openDialog();
-                          console.error(errOut);
-                        }
-                      );
-                    },
-                    errSaveT => {
-                      this.dataSource.data[position].status = false;
-                      console.error(errSaveT);
-                    }
-                  );
-              },
-              errSend => {
-                this.dataSource.data[position].status = false;
-                this._messageError = errSend.error;
-                this.openDialog();
-                console.error(errSend);
-              }
-            );
-          },
-          errInvoice => {
-            this.dataSource.data[position].status = false;
-            this._messageError = errInvoice.error;
-            this.openDialog();
-            console.error(errInvoice);
-          }
-        );
-      },
-      errLogin => {
-        this.dataSource.data[position].status = false;
-        this._messageError = errLogin.error;
-        this.openDialog();
-        console.error(errLogin);
-      }
-    );
+                            this.dataSource.data[position].status = false;
+                            this._messageError = errOut.error;
+                            this.openDialog();
+                            console.error(errOut);
+                          }
+                        );
+                      },
+                      errSaveT => {
+                        this.dataSource.data[position].status = false;
+                        console.error(errSaveT);
+                      }
+                    );
+                },
+                errSend => {
+                  this.dataSource.data[position].status = false;
+                  this._messageError = errSend.error;
+                  this.openDialog();
+                  console.error(errSend);
+                }
+              );
+            },
+            errInvoice => {
+              this.dataSource.data[position].status = false;
+              this._messageError = errInvoice.error;
+              this.openDialog();
+              console.error(errInvoice);
+            }
+          );
+        },
+        errLogin => {
+          this.dataSource.data[position].status = false;
+          this._messageError = errLogin.error;
+          this.openDialog();
+          console.error(errLogin);
+        }
+      );
   }
 
   saveXML(position: number, invoice: string) {

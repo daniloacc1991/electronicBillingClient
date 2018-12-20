@@ -6,6 +6,7 @@ import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter } from '@angular/material-mo
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material';
+import { Router } from '@angular/router';
 
 import { UIChart } from 'primeng/primeng';
 import { MessageService } from 'primeng/components/common/messageservice';
@@ -280,7 +281,7 @@ export class HomeComponent implements OnInit {
 
   constructor(private breakpointObserver: BreakpointObserver, private _is: InvoiceService,
     private adapter: DateAdapter<any>, private messageService: MessageService,
-    public _dialogLogin: MatDialog, private snackBar: MatSnackBar) {
+    public _dialogLogin: MatDialog, private snackBar: MatSnackBar, private router: Router) {
     if (!localStorage.getItem('user')) {
       this.openDialog();
     }
@@ -307,7 +308,7 @@ export class HomeComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       console.log(result);
-      this.snackBar.open(result, 'Cerrar', { duration: 3000 } );
+      this.snackBar.open(result, 'Cerrar', { duration: 3000 });
     });
   }
 
@@ -351,6 +352,13 @@ export class HomeComponent implements OnInit {
     const title = data.labels[event.element._datasetIndex];
     const detail = data.datasets[event.element._datasetIndex].data[event.element._index];
     this.messageService.add({ severity: 'success', summary: title, detail: detail, life: 3000 });
+    if (title === 'Pendientes Por Enviar') {
+      this.router.navigate(['/pending']);
+    } else if (title === 'Enviadas en Transito') {
+      this.router.navigate(['/pendingcufe']);
+    } else {
+      this.router.navigate(['/downloadpdf']);
+    }
   }
 }
 
