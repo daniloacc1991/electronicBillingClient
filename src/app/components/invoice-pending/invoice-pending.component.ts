@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 import { MatSort, MatPaginator, MatTableDataSource } from '@angular/material';
 import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
@@ -24,6 +25,18 @@ export interface InvoicePendingElement {
   selector: 'app-invoice-pending',
   templateUrl: './invoice-pending.component.html',
   styleUrls: ['./invoice-pending.component.scss'],
+  animations: [
+    trigger('flyInOut', [
+      state('in', style({ transform: 'translateX(0)' })),
+      transition('void => *', [
+        style({ transform: 'translateX(-100%)' }),
+        animate(500)
+      ]),
+      transition('* => void', [
+        animate(100, style({ transform: 'translateX(100%)' }))
+      ])
+    ])
+  ]
 })
 export class InvoicePendingComponent implements OnInit {
   displayedColumns: string[] = ['position', 'name', 'typeinvoce', 'empresa', 'enviar', 'guardar'];
@@ -43,7 +56,8 @@ export class InvoicePendingComponent implements OnInit {
     private router: Router,
     private _title: Title,
     public _dialogError: MatDialog) {
-    this._title.setTitle('Envío DELCOP - Facturación Electrónica');
+    this._title.setTitle('Envío de Facturas - Facturación Electrónica');
+    this._as.setApplicationName('Envío de Facturas - Facturación Electrónica');
   }
 
   ngOnInit() {
@@ -92,7 +106,7 @@ export class InvoicePendingComponent implements OnInit {
                   const transaccion = resSend.data.rows.transaccion;
                   this._is.saveTransaccion(invoice, transaccion)
                     .pipe(
-                      delay(5000)
+                      delay(4000)
                     )
                     .subscribe(
                       resSaveT => {

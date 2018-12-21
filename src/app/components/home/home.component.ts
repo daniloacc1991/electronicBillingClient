@@ -7,13 +7,14 @@ import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/materia
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material';
 import { Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 
 import { UIChart } from 'primeng/primeng';
 import { MessageService } from 'primeng/components/common/messageservice';
 import { LoginComfiarComponent } from '../login-comfiar/login-comfiar.component';
 
 import { InvoiceService } from '../../services/invoice.service';
-import { duration } from 'moment';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -279,12 +280,19 @@ export class HomeComponent implements OnInit {
       })
     );
 
-  constructor(private breakpointObserver: BreakpointObserver, private _is: InvoiceService,
-    private adapter: DateAdapter<any>, private messageService: MessageService,
-    public _dialogLogin: MatDialog, private snackBar: MatSnackBar, private router: Router) {
-    if (!localStorage.getItem('user')) {
-      this.openDialog();
-    }
+  constructor(private breakpointObserver: BreakpointObserver,
+    private _is: InvoiceService,
+    private _as: AuthService,
+    private messageService: MessageService,
+    public _dialogLogin: MatDialog,
+    private snackBar: MatSnackBar,
+    private router: Router,
+    private _title: Title) {
+      this._title.setTitle('Home - Facturación Electrónica');
+      this._as.setApplicationName('Home - Facturación Electrónica');
+      if (!localStorage.getItem('user')) {
+        this.openDialog();
+      }
   }
 
   ngOnInit() {

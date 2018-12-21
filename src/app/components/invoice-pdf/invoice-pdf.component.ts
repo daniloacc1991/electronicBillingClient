@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 import { Title } from '@angular/platform-browser';
+import { delay } from 'rxjs/operators';
 
 import { InvoiceService } from '../../services/invoice.service';
 import { ComfiarService } from '../../services/index';
@@ -19,6 +21,18 @@ export interface InvoiceSentsElement {
   selector: 'app-invoice-pdf',
   templateUrl: './invoice-pdf.component.html',
   styleUrls: ['./invoice-pdf.component.scss'],
+  animations: [
+    trigger('flyInOut', [
+      state('in', style({ transform: 'translateX(0)' })),
+      transition('void => *', [
+        style({ transform: 'translateX(-100%)' }),
+        animate(500)
+      ]),
+      transition('* => void', [
+        animate(100, style({ transform: 'translateX(100%)' }))
+      ])
+    ])
+  ]
 })
 export class InvoicePdfComponent implements OnInit {
   pdfSrc: any;
@@ -37,7 +51,8 @@ export class InvoicePdfComponent implements OnInit {
     private _as: AuthService,
     private _cs: ComfiarService,
     private _titleService: Title) {
-    this._titleService.setTitle('Consultar PDF - Facturación Electrónica');
+    this._titleService.setTitle('Descargar Facturas - Facturación Electrónica');
+    this._as.setApplicationName('Descargar Facturas - Facturación Electrónica');
   }
 
   ngOnInit() {
@@ -56,24 +71,28 @@ export class InvoicePdfComponent implements OnInit {
   pdf(position: number, invoice: string, transaccion: number) {
     this.dataSource.data[position].status = true;
     const dataCom = this._as.getDataUser();
-    this._cs.loginComfiar(dataCom.username, dataCom.password).subscribe(
-      resLogin => {
-        this._cs.donwloadPDF(resLogin.data.rows, invoice, transaccion).subscribe(
-          resPDF => {
-            this.converToPdf(resPDF.data.rows, invoice);
-            this.dataSource.data[position].status = false;
-          },
-          errPDF => {
-            console.error(errPDF);
-            this.dataSource.data[position].status = false;
-          }
-        );
-      },
-      errLogin => {
-        console.error(errLogin);
-        this.dataSource.data[position].status = false;
-      }
-    );
+    this._cs.loginComfiar(dataCom.username, dataCom.password)
+      .pipe(
+        delay(1000)
+      )
+      .subscribe(
+        resLogin => {
+          this._cs.donwloadPDF(resLogin.data.rows, invoice, transaccion).subscribe(
+            resPDF => {
+              this.converToPdf(resPDF.data.rows, invoice);
+              this.dataSource.data[position].status = false;
+            },
+            errPDF => {
+              console.error(errPDF);
+              this.dataSource.data[position].status = false;
+            }
+          );
+        },
+        errLogin => {
+          console.error(errLogin);
+          this.dataSource.data[position].status = false;
+        }
+      );
   }
 
   converToPdf(pdfBase64: string, invoice: string) {

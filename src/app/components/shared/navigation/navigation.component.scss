@@ -17,7 +17,29 @@
 }
 
 .example-fill-remaining-space {
-  /* This fills the remaining space, by using flexbox. 
-     Every toolbar row uses a flexbox row layout. */
   flex: 1 1 auto;
+}
+
+.link-active, .mat-nav-list .mat-list-item:focus, .mat-list-option:focus {
+  background: #3A96C2;
+  color: #fff;
+}
+
+.mat-list-option:hover, .mat-nav-list .mat-list-item:hover {
+  background: #3f51b5;
+  color: #fff;
+}
+
+.mat-icon-button-outwith {
+  width: 250px;
+}
+
+.menu-toolbar {
+  background: #3f51b5 !important;
+  color: #fff;
+}
+
+.arrow-name {
+  vertical-align: middle;
+  line-height: 19px !important;
 }

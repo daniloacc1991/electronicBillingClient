@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { ResponseModel } from '../models/response';
-import { TokenModel } from '../models/token';
+import { TokenComfiar } from '../models/tokenComfiar';
 import { AppSettings } from '../proyect.conf';
 
 @Injectable({
@@ -21,7 +21,7 @@ export class ComfiarService {
     return this._http.post<ResponseModel>(`${this.apiBack}login`, httpParams);
   }
 
-  sendInvoice(dateToken: TokenModel, xml: string) {
+  sendInvoice(dateToken: TokenComfiar, xml: string) {
     const httpParams = new HttpParams()
       .append('token', dateToken.token)
       .append('date', dateToken.date)
@@ -29,7 +29,7 @@ export class ComfiarService {
     return this._http.post<ResponseModel>(`${this.apiBack}invoice`, httpParams);
   }
 
-  outTransaccion(dateToken: TokenModel, transaccion: number) {
+  outTransaccion(dateToken: TokenComfiar, transaccion: number) {
     const httpParams = new HttpParams()
       .append('token', dateToken.token)
       .append('date', dateToken.date)
@@ -37,7 +37,7 @@ export class ComfiarService {
     return this._http.post<ResponseModel>(`${this.apiBack}salidaTransaccion`, httpParams);
   }
 
-  resposeVoucher(dateToken: TokenModel, invoice: string, transaccion: number) {
+  resposeVoucher(dateToken: TokenComfiar, invoice: string, transaccion: number) {
     const httpParams = new HttpParams()
       .append('token', dateToken.token)
       .append('date', dateToken.date)
@@ -46,7 +46,7 @@ export class ComfiarService {
     return this._http.post<ResponseModel>(`${this.apiBack}respuestaComprobante`, httpParams);
   }
 
-  donwloadPDF(dateToken: TokenModel, invoice: string, transaccion: number) {
+  donwloadPDF(dateToken: TokenComfiar, invoice: string, transaccion: number) {
     const httpParams = new HttpParams()
       .append('token', dateToken.token)
       .append('date', dateToken.date)

@@ -1,4 +1,4 @@
 export interface TokenModel {
-  date: string;
+  username: string;
   token: string;
 }

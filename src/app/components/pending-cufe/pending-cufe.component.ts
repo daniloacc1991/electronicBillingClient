@@ -1,12 +1,15 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { MatDialog } from '@angular/material/dialog';
+import { Title } from '@angular/platform-browser';
 
 import { ErrorComponent } from '../shared/error/error.component';
 
 import { InvoiceService, ComfiarService } from '../../services/';
 import { AuthService } from '../../auth/auth.service';
+import { delay } from 'rxjs/operators';
 
 export interface InvoiceSentsElement {
   position: string;
@@ -21,6 +24,18 @@ export interface InvoiceSentsElement {
   selector: 'app-pending-cufe',
   templateUrl: './pending-cufe.component.html',
   styleUrls: ['./pending-cufe.component.scss'],
+  animations: [
+    trigger('flyInOut', [
+      state('in', style({ transform: 'translateX(0)' })),
+      transition('void => *', [
+        style({ transform: 'translateX(-100%)' }),
+        animate(500)
+      ]),
+      transition('* => void', [
+        animate(100, style({ transform: 'translateX(100%)' }))
+      ])
+    ])
+  ]
 })
 export class PendingCufeComponent implements OnInit {
 
@@ -36,9 +51,15 @@ export class PendingCufeComponent implements OnInit {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  constructor(private _is: InvoiceService, private _cs: ComfiarService,
-    private _as: AuthService, private router: Router,
-    public _dialogError: MatDialog) { }
+  constructor(private _is: InvoiceService,
+    private _cs: ComfiarService,
+    private _as: AuthService,
+    private router: Router,
+    public _dialogError: MatDialog,
+    private _title: Title) {
+      this._title.setTitle('Reenvio de Facturas - Facturación Electrónica');
+      this._as.setApplicationName('Reenvio de Facturas- Facturación Electrónica');
+    }
 
   ngOnInit() {
     this._is.cufePending()
@@ -65,37 +86,41 @@ export class PendingCufeComponent implements OnInit {
   async consultarCufe(position: number, invoice: string, transaccion: number) {
     this.dataSource.data[position].status = true;
     const dataCom = this._as.getDataUser();
-    this._cs.loginComfiar(dataCom.username, dataCom.password).subscribe(
-      resLogin => {
-        this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion).subscribe(
-          resVoucher => {
-            this._is.saveCufe(resVoucher.data.rows.cufe, invoice).subscribe(
-              resCufe => {
-                this.dataSource.data[position].status = false;
-                this.router.navigate(['/downloadpdf']);
-              },
-              errCufe => {
-                this.dataSource.data[position].status = false;
-                this._messageError = errCufe.error;
-                this.openDialog();
-                console.error(errCufe);
-              }
-            );
-          },
-          errVoucher => {
-            this.dataSource.data[position].status = false;
-            this._messageError = errVoucher.error;
-            this.openDialog();
-            console.error(errVoucher);
-          }
-        );
-      },
-      errLogin => {
-        this.dataSource.data[position].status = false;
-        this._messageError = errLogin.error.error;
-        this.openDialog();
-        console.error(errLogin);
-      }
-    );
+    this._cs.loginComfiar(dataCom.username, dataCom.password)
+      .pipe(
+        delay(1000)
+      )
+      .subscribe(
+        resLogin => {
+          this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion).subscribe(
+            resVoucher => {
+              this._is.saveCufe(resVoucher.data.rows.cufe, invoice).subscribe(
+                resCufe => {
+                  this.dataSource.data[position].status = false;
+                  this.router.navigate(['/downloadpdf']);
+                },
+                errCufe => {
+                  this.dataSource.data[position].status = false;
+                  this._messageError = errCufe.error;
+                  this.openDialog();
+                  console.error(errCufe);
+                }
+              );
+            },
+            errVoucher => {
+              this.dataSource.data[position].status = false;
+              this._messageError = errVoucher.error;
+              this.openDialog();
+              console.error(errVoucher);
+            }
+          );
+        },
+        errLogin => {
+          this.dataSource.data[position].status = false;
+          this._messageError = errLogin.error.error;
+          this.openDialog();
+          console.error(errLogin);
+        }
+      );
   }
 }

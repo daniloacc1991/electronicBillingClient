@@ -40,7 +40,7 @@ export class LoginComponent {
       .subscribe(
         res => {
           localStorage.setItem('token', JSON.stringify(res.data));
-          this.router.navigate(['/']);
+          this.router.navigate(['/home']);
           this._isLoading = !this._isLoading;
         },
         err => {

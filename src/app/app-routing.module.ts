@@ -14,7 +14,7 @@ const routes: Routes = [
   {
     path: '', component: NavigationComponent,
     children: [
-      { path: '', component: HomeComponent, canActivate: [AuthGuard] },
+      { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
       { path: 'pending', component: InvoicePendingComponent, canActivate: [AuthGuard] },
       { path: 'downloadpdf', component: InvoicePdfComponent, canActivate: [AuthGuard] },
       { path: 'pendingcufe', component: PendingCufeComponent, canActivate: [AuthGuard] }
