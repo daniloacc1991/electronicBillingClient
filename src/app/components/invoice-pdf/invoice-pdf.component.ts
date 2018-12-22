@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { Title } from '@angular/platform-browser';
+import { Title, DomSanitizer } from '@angular/platform-browser';
 import { delay } from 'rxjs/operators';
 
 import { InvoiceService } from '../../services/invoice.service';
@@ -36,6 +36,8 @@ export interface InvoiceSentsElement {
 })
 export class InvoicePdfComponent implements OnInit {
   pdfSrc: any;
+  private nameDownload: string;
+  private urlPDF: any;
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns: string[] = ['position', 'name', 'typeinvoce', 'empresa', 'transaccion', 'enviar'];
 
@@ -50,7 +52,8 @@ export class InvoicePdfComponent implements OnInit {
   constructor(private _is: InvoiceService,
     private _as: AuthService,
     private _cs: ComfiarService,
-    private _titleService: Title) {
+    private _titleService: Title,
+    private sanitizer: DomSanitizer) {
     this._titleService.setTitle('Descargar Facturas - Facturación Electrónica');
     this._as.setApplicationName('Descargar Facturas - Facturación Electrónica');
   }
@@ -81,6 +84,7 @@ export class InvoicePdfComponent implements OnInit {
             resPDF => {
               this.converToPdf(resPDF.data.rows, invoice);
               this.dataSource.data[position].status = false;
+              this.ngOnInit();
             },
             errPDF => {
               console.error(errPDF);

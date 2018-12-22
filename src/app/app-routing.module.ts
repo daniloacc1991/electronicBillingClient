@@ -12,14 +12,15 @@ import { PendingCufeComponent } from './components/pending-cufe/pending-cufe.com
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   {
-    path: '', component: NavigationComponent,
+    path: '', component: NavigationComponent, canActivate: [AuthGuard],
     children: [
       { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
       { path: 'pending', component: InvoicePendingComponent, canActivate: [AuthGuard] },
       { path: 'downloadpdf', component: InvoicePdfComponent, canActivate: [AuthGuard] },
       { path: 'pendingcufe', component: PendingCufeComponent, canActivate: [AuthGuard] }
     ]
-  }
+  },
+  { path: '**', redirectTo: '/home' }
 ];
 
 @NgModule({

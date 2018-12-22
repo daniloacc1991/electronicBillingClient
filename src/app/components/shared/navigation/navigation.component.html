@@ -15,7 +15,8 @@
         <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawer.toggle()" *ngIf="isHandset$ | async">
           <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
         </button>
-        <span>{{ _as.getApplicationName() | async }}</span>
+        <span *ngIf="_as.getApplicationName()"
+          >{{ _as.getApplicationName() | async }}</span>
         <!-- This fills the remaining space of the current row -->
         <span class="example-fill-remaining-space"></span>
 

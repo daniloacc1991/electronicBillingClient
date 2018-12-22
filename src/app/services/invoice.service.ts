@@ -60,4 +60,8 @@ export class InvoiceService {
     return this._http.get<ResponseModel>(`${this.backAPI}electronicforuser`);
   }
 
+  viewPDF(invoice: string) {
+    return this._http.get<ResponseModel>(`${this.backAPI}pdf/${invoice}`);
+  }
+
 }
