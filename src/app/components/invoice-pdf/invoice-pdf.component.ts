@@ -39,7 +39,7 @@ export class InvoicePdfComponent implements OnInit {
   private nameDownload: string;
   private urlPDF: any;
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns: string[] = ['position', 'name', 'typeinvoce', 'empresa', 'transaccion', 'enviar'];
+  displayedColumns: string[] = ['consecutivo', 'factura', 'typeinvoce', 'empresa', 'transaccion', 'enviar'];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;

@@ -40,7 +40,7 @@ export interface InvoiceSentsElement {
 export class PendingCufeComponent implements OnInit {
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns: string[] = ['position', 'name', 'empresa', 'transaccion', 'enviar'];
+  displayedColumns: string[] = ['consecutivo', 'factura', 'empresa', 'transaccion', 'enviar'];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;

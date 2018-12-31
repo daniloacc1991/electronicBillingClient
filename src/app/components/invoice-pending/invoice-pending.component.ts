@@ -39,7 +39,7 @@ export interface InvoicePendingElement {
   ]
 })
 export class InvoicePendingComponent implements OnInit {
-  displayedColumns: string[] = ['position', 'name', 'typeinvoce', 'empresa', 'enviar', 'guardar'];
+  displayedColumns: string[] = ['consecutivo', 'factura', 'typeinvoce', 'empresa', 'enviar', 'guardar'];
   dataSource = new MatTableDataSource<InvoicePendingElement>();
   _messageError: string;
 
@@ -91,7 +91,6 @@ export class InvoicePendingComponent implements OnInit {
       )
       .subscribe(
         resLogin => {
-          console.log(resLogin);
           this._is.invoice(invoice).subscribe(
             resInvoice => {
               const _xml = this.xmlparse(resInvoice.data.rows);
@@ -112,7 +111,6 @@ export class InvoicePendingComponent implements OnInit {
                       resSaveT => {
                         this._cs.outTransaccion(resLogin.data.rows, transaccion).subscribe(
                           resOut => {
-                            console.log(resOut);
                             if (resOut.data.rows === 'CargandoComprobantes') {
                               this.dataSource.data[position].status = false;
                               this.router.navigate(['/pendingcufe']);

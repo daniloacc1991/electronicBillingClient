@@ -20,11 +20,11 @@ const routes: Routes = [
       { path: 'pendingcufe', component: PendingCufeComponent, canActivate: [AuthGuard] }
     ]
   },
-  { path: '**', redirectTo: '/home' }
+  { path: '**', pathMatch: 'full', redirectTo: '/home' }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, { useHash: true })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
