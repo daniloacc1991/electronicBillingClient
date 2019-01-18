@@ -1,8 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { Title, DomSanitizer } from '@angular/platform-browser';
+import { MatDialog } from '@angular/material/dialog';
+import { Title } from '@angular/platform-browser';
 import { delay } from 'rxjs/operators';
+
+import { ErrorComponent } from '../shared/error/error.component';
 
 import { InvoiceService } from '../../services/invoice.service';
 import { ComfiarService } from '../../services/index';
@@ -36,10 +39,9 @@ export interface InvoiceSentsElement {
 })
 export class InvoicePdfComponent implements OnInit {
   pdfSrc: any;
-  private nameDownload: string;
-  private urlPDF: any;
+  _messageError: string;
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns: string[] = ['consecutivo', 'factura', 'typeinvoce', 'empresa', 'transaccion', 'enviar'];
+  displayedColumns: string[] = ['consecutivo', 'factura', 'typeinvoce', 'empresa', 'transaccion', 'punto_venta', 'enviar', 'save_local'];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -53,7 +55,7 @@ export class InvoicePdfComponent implements OnInit {
     private _as: AuthService,
     private _cs: ComfiarService,
     private _titleService: Title,
-    private sanitizer: DomSanitizer) {
+    public _dialogError: MatDialog) {
     this._titleService.setTitle('Descargar Facturas - Facturación Electrónica');
     this._as.setApplicationName('Descargar Facturas - Facturación Electrónica');
   }
@@ -71,7 +73,7 @@ export class InvoicePdfComponent implements OnInit {
     );
   }
 
-  pdf(position: number, invoice: string, transaccion: number) {
+  pdf(position: number, invoice: string, transaccion: number, puntoVenta: number) {
     this.dataSource.data[position].status = true;
     const dataCom = this._as.getDataUser();
     this._cs.loginComfiar(dataCom.username, dataCom.password)
@@ -80,7 +82,7 @@ export class InvoicePdfComponent implements OnInit {
       )
       .subscribe(
         resLogin => {
-          this._cs.donwloadPDF(resLogin.data.rows, invoice, transaccion).subscribe(
+          this._cs.donwloadPDF(resLogin.data.rows, invoice, transaccion, puntoVenta).subscribe(
             resPDF => {
               this.converToPdf(resPDF.data.rows, invoice);
               this.dataSource.data[position].status = false;
@@ -89,12 +91,16 @@ export class InvoicePdfComponent implements OnInit {
             errPDF => {
               console.error(errPDF);
               this.dataSource.data[position].status = false;
+              this._messageError = errPDF.error;
+              this.openDialog();
             }
           );
         },
         errLogin => {
           console.error(errLogin);
           this.dataSource.data[position].status = false;
+          this._messageError = errLogin.error;
+          this.openDialog();
         }
       );
   }
@@ -120,5 +126,13 @@ export class InvoicePdfComponent implements OnInit {
     document.body.appendChild(link);
     link.click();
     link.remove();
+  }
+
+  openDialog(): void {
+    const dialogRef = this._dialogError.open(ErrorComponent, {
+      data: {
+        Message: this._messageError
+      }
+    });
   }
 }

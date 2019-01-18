@@ -4,9 +4,9 @@
 
 export const environment = {
   production: false,
-  host: '172.27.142.28',
-  // host: 'facturacionApi',
-  port: 3000,
+  // host: '172.27.142.28',
+  host: 'facturacionApi',
+  port: 8080,
 };
 
 /*

@@ -41,6 +41,7 @@ import { PendingCufeComponent } from './components/pending-cufe/pending-cufe.com
 import { LoginComfiarComponent } from './components/login-comfiar/login-comfiar.component';
 
 import { Autorization } from './interceptors/authorization';
+import { MenuListItemComponent } from './components/shared/menu-list-item/menu-list-item.component';
 
 @NgModule({
   declarations: [
@@ -52,7 +53,8 @@ import { Autorization } from './interceptors/authorization';
     ErrorComponent,
     InvoicePdfComponent,
     PendingCufeComponent,
-    LoginComfiarComponent
+    LoginComfiarComponent,
+    MenuListItemComponent
   ],
   imports: [
     BrowserModule,

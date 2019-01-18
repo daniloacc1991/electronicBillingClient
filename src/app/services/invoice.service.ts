@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { ResponseModel } from '../models/response';
-import { LoginModel } from '../models/login';
 import { AppSettings } from '../proyect.conf';
 
 import { AuthService } from '../auth/auth.service';

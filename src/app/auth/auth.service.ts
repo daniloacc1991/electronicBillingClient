@@ -22,7 +22,7 @@ export class AuthService {
   login(username: string, password: string) {
     const httpParams = new HttpParams()
       .append('user', username)
-      .append('pass', password.toLocaleUpperCase());
+      .append('pass', password);
     return this._http.post<ResponseModel>(`${this.backAPI}v0/user/login`, httpParams);
   }
 
@@ -63,5 +63,9 @@ export class AuthService {
 
   setApplicationName(name: string) {
     this.applicationName = name;
+  }
+
+  getMenu() {
+    return this._http.get<ResponseModel>(`${this.backAPI}v0/user/menu`);
   }
 }

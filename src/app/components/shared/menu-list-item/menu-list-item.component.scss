@@ -1,0 +1,45 @@
+@import '../../../theme';
+
+:host {
+  display: flex;
+  flex-direction: column;
+  outline: none;
+  width: 100%;
+
+  .mat-list-item.active {
+    background-color: #3A96C2;
+  }
+  &:hover,
+  &:focus {
+    >.mat-list-item:not(.expanded) {
+      background-color: #3f51b5;
+    }
+  }
+}
+
+.mat-list-item {
+  display: flex;
+  width: auto;
+
+  .routeIcon {
+    margin-right: 40px;
+  }
+}
+
+.list-item-span {
+  flex: 1 1 0%;
+  flex-direction: row;
+  display: flex;
+  box-sizing: border-box;
+}
+
+.mat-list-item-content {
+  flex-direction: row;
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 100% !important;
+}
+
+.mat-list-item .mat-list-item.active {
+  background-color: #3A96C2;
+}

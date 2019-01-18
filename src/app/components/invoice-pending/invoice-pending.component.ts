@@ -39,7 +39,7 @@ export interface InvoicePendingElement {
   ]
 })
 export class InvoicePendingComponent implements OnInit {
-  displayedColumns: string[] = ['consecutivo', 'factura', 'typeinvoce', 'empresa', 'enviar', 'guardar'];
+  displayedColumns: string[] = ['consecutivo', 'factura', 'typeinvoce', 'empresa', 'punto_venta', 'enviar', 'guardar'];
   dataSource = new MatTableDataSource<InvoicePendingElement>();
   _messageError: string;
 
@@ -64,6 +64,7 @@ export class InvoicePendingComponent implements OnInit {
     this._is.invoicePending()
       .subscribe(
         res => {
+          // console.log(res);
           this.dataSource.data = res.data.rows;
           this.dataSource.paginator = this.paginator;
           this.dataSource.sort = this.sort;
@@ -82,7 +83,7 @@ export class InvoicePendingComponent implements OnInit {
     });
   }
 
-  sendInvoice(position: number, invoice: string) {
+  sendInvoice(position: number, invoice: string, puntoVenta: number) {
     this.dataSource.data[position].status = true;
     const dataCom = this._as.getDataUser();
     this._cs.loginComfiar(dataCom.username, dataCom.password)
@@ -94,7 +95,7 @@ export class InvoicePendingComponent implements OnInit {
           this._is.invoice(invoice).subscribe(
             resInvoice => {
               const _xml = this.xmlparse(resInvoice.data.rows);
-              this._cs.sendInvoice(resLogin.data.rows, _xml).subscribe(
+              this._cs.sendInvoice(resLogin.data.rows, _xml, puntoVenta).subscribe(
                 resSend => {
                   if (!resSend.data.rows) {
                     this.dataSource.data[position].status = false;
@@ -115,7 +116,7 @@ export class InvoicePendingComponent implements OnInit {
                               this.dataSource.data[position].status = false;
                               this.router.navigate(['/pendingcufe']);
                             } else {
-                              this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion).subscribe(
+                              this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion, puntoVenta).subscribe(
                                 resVoucher => {
                                   this._is.saveCufe(resVoucher.data.rows.cufe, invoice).subscribe(
                                     resCufe => {

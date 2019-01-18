@@ -12,7 +12,7 @@
 }
 
 .fa-file-pdf {
-  color: red;
+  color: #f44336;
 }
 
 @media (max-width: 599px) {
@@ -33,4 +33,16 @@
       -webkit-overflow-scrolling: touch;
       -ms-overflow-style: -ms-autohiding-scrollbar;
   }
+}
+
+.icons-blue {
+  color: #3f51b5;
+}
+
+.icons-red {
+  color: #f44336;
+}
+
+.button-icon-pdf {
+  width: 0 !important;
 }

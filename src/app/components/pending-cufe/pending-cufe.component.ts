@@ -40,7 +40,7 @@ export interface InvoiceSentsElement {
 export class PendingCufeComponent implements OnInit {
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns: string[] = ['consecutivo', 'factura', 'empresa', 'transaccion', 'enviar'];
+  displayedColumns: string[] = ['consecutivo', 'factura', 'empresa', 'transaccion', 'punto_venta', 'enviar'];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -83,7 +83,7 @@ export class PendingCufeComponent implements OnInit {
     });
   }
 
-  async consultarCufe(position: number, invoice: string, transaccion: number) {
+  consultarCufe(position: number, invoice: string, transaccion: number, puntoVenta: number) {
     this.dataSource.data[position].status = true;
     const dataCom = this._as.getDataUser();
     this._cs.loginComfiar(dataCom.username, dataCom.password)
@@ -92,7 +92,7 @@ export class PendingCufeComponent implements OnInit {
       )
       .subscribe(
         resLogin => {
-          this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion).subscribe(
+          this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion, puntoVenta ).subscribe(
             resVoucher => {
               this._is.saveCufe(resVoucher.data.rows.cufe, invoice).subscribe(
                 resCufe => {
@@ -111,6 +111,13 @@ export class PendingCufeComponent implements OnInit {
               this.dataSource.data[position].status = false;
               this._messageError = errVoucher.error;
               this.openDialog();
+              this._is.deleteTransaccion(invoice).subscribe(
+                res => console.log(res),
+                errDelete => {
+                  this._messageError = errDelete.error;
+                  this.openDialog();
+                }
+              );
               console.error(errVoucher);
             }
           );

@@ -15,9 +15,14 @@ const routes: Routes = [
     path: '', component: NavigationComponent, canActivate: [AuthGuard],
     children: [
       { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
-      { path: 'pending', component: InvoicePendingComponent, canActivate: [AuthGuard] },
-      { path: 'downloadpdf', component: InvoicePdfComponent, canActivate: [AuthGuard] },
-      { path: 'pendingcufe', component: PendingCufeComponent, canActivate: [AuthGuard] }
+      {
+        path: 'factura', canActivate: [AuthGuard],
+        children: [
+          { path: 'pending', component: InvoicePendingComponent, canActivate: [AuthGuard] },
+          { path: 'downloadpdf', component: InvoicePdfComponent, canActivate: [AuthGuard] },
+          { path: 'pendingcufe', component: PendingCufeComponent, canActivate: [AuthGuard] }
+        ]
+      },
     ]
   },
   { path: '**', pathMatch: 'full', redirectTo: '/home' }

@@ -3,10 +3,7 @@
     [mode]="(isHandset$ | async) ? 'over' : 'side'" [opened]="!(isHandset$ | async)">
     <mat-toolbar class="menu-toolbar">Menu</mat-toolbar>
     <mat-nav-list>
-      <a mat-list-item routerLinkActive="link-active" [routerLink]="['/home']">Inicio</a>
-      <a mat-list-item routerLinkActive="link-active" [routerLink]="['/pending']">Enviar Facturas</a>
-      <a mat-list-item routerLinkActive="link-active" [routerLink]="['/pendingcufe']">Reenviar Facturas</a>
-      <a mat-list-item routerLinkActive="link-active" [routerLink]="['/downloadpdf']">Descargar Facturas</a>
+      <app-menu-list-item *ngFor="let item of navItems" [item]="item"></app-menu-list-item>
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>
@@ -15,14 +12,12 @@
         <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawer.toggle()" *ngIf="isHandset$ | async">
           <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
         </button>
-        <span *ngIf="_as.getApplicationName()"
-          >{{ _as.getApplicationName() | async }}</span>
+        <span *ngIf="_as.getApplicationName()">{{ _as.getApplicationName() | async }}</span>
         <!-- This fills the remaining space of the current row -->
         <span class="example-fill-remaining-space"></span>
 
         <button class="mat-icon-button-outwith" mat-icon-button [matMenuTriggerFor]="menu">
-          <span *ngIf="nameUser"
-            >
+          <span *ngIf="nameUser">
             {{ nameUser }}
             <mat-icon class="arrow-name">keyboard_arrow_down</mat-icon>
           </span>

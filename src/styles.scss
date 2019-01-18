@@ -949,3 +949,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     margin-left: 91.666667%;
   }
 }
+
+a.menu-list-item > div.mat-list-item-content {
+  flex-direction: row !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex: 1 1 100% !important;
+}
