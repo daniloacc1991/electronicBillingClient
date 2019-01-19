@@ -42,6 +42,7 @@ import { LoginComfiarComponent } from './components/login-comfiar/login-comfiar.
 
 import { Autorization } from './interceptors/authorization';
 import { MenuListItemComponent } from './components/shared/menu-list-item/menu-list-item.component';
+import { NotePendingComponent } from './components/note-pending/note-pending.component';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { MenuListItemComponent } from './components/shared/menu-list-item/menu-l
     InvoicePdfComponent,
     PendingCufeComponent,
     LoginComfiarComponent,
-    MenuListItemComponent
+    MenuListItemComponent,
+    NotePendingComponent
   ],
   imports: [
     BrowserModule,

@@ -8,6 +8,7 @@ import { NavigationComponent } from './components/shared/navigation/navigation.c
 import { InvoicePendingComponent } from './components/invoice-pending/invoice-pending.component';
 import { InvoicePdfComponent } from './components/invoice-pdf/invoice-pdf.component';
 import { PendingCufeComponent } from './components/pending-cufe/pending-cufe.component';
+import { NotePendingComponent } from './components/note-pending/note-pending.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -23,6 +24,12 @@ const routes: Routes = [
           { path: 'pendingcufe', component: PendingCufeComponent, canActivate: [AuthGuard] }
         ]
       },
+      {
+        path: 'nota', canActivate: [AuthGuard],
+        children: [
+          { path: 'pending', component: NotePendingComponent, canActivate: [AuthGuard] }
+        ]
+      }
     ]
   },
   { path: '**', pathMatch: 'full', redirectTo: '/home' }
