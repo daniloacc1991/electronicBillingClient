@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { FormControl, Validators } from '@angular/forms';
+import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import { delay } from 'rxjs/operators';
@@ -40,8 +42,22 @@ export interface InvoiceSentsElement {
 export class InvoicePdfComponent implements OnInit {
   pdfSrc: any;
   _messageError: string;
+  fechaI = new FormControl({ value: new Date(), disabled: true }, Validators.required);
+  fechaF = new FormControl({ value: new Date(), disabled: true }, Validators.required);
+  minDateFin = new Date();
+  // maxDateFin = new Date() + 1;
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns: string[] = ['consecutivo', 'factura', 'typeinvoce', 'empresa', 'transaccion', 'punto_venta', 'enviar', 'save_local'];
+  displayedColumns: string[] = [
+    'consecutivo',
+    'factura',
+    'typeinvoce',
+    'empresa',
+    'transaccion',
+    'punto_venta',
+    'estado_fe',
+    'enviar',
+    'save_local'
+  ];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -61,7 +77,13 @@ export class InvoicePdfComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._is.invoiceSend().subscribe(
+    const fechaI = this.dateString(this.fechaI.value);
+    const fechaF = this.dateString(this.fechaF.value);
+    this.invoiceSent(fechaI, fechaF);
+  }
+
+  invoiceSent(fechaI: string, fechaF: string) {
+    this._is.invoiceSend(fechaI, fechaF).subscribe(
       res => {
         this.dataSource.data = res.data.rows;
         this.dataSource.paginator = this.paginator;
@@ -134,5 +156,24 @@ export class InvoicePdfComponent implements OnInit {
         Message: this._messageError
       }
     });
+  }
+
+  consultar() {
+    const fechaI = this.dateString(this.fechaI.value);
+    const fechaF = this.dateString(this.fechaF.value);
+    this.invoiceSent(fechaI, fechaF);
+  }
+
+  dateString(date: any) {
+    let month, day;
+    month = (date.getMonth() + 1) < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
+    day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+    return `${date.getFullYear()}-${month}-${day}`;
+  }
+
+  changeFechaI(event: MatDatepickerInputEvent<Date>) {
+    console.log(event.value);
+    this.minDateFin = event.value;
+    // this.minDateFin = event.value
   }
 }

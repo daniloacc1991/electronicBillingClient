@@ -38,7 +38,7 @@ export class NavigationComponent implements AfterViewInit {
       map(result => result.matches)
     );
 
-  constructor(private breakpointObserver: BreakpointObserver, private _as: AuthService,
+  constructor(private breakpointObserver: BreakpointObserver, public _as: AuthService,
     private router: Router) {
     if (localStorage.getItem('token')) {
       this.router.navigate(['/home']);

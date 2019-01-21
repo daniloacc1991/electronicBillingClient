@@ -114,22 +114,24 @@ export class InvoicePendingComponent implements OnInit {
                           resOut => {
                             if (resOut.data.rows === 'CargandoComprobantes') {
                               this.dataSource.data[position].status = false;
-                              this.router.navigate(['/pendingcufe']);
+                              this.router.navigate(['/factura/pendingcufe']);
                             } else {
                               this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion, puntoVenta).subscribe(
                                 resVoucher => {
-                                  this._is.saveCufe(resVoucher.data.rows.cufe, invoice).subscribe(
-                                    resCufe => {
-                                      this.dataSource.data[position].status = false;
-                                      this.router.navigate(['/downloadpdf']);
-                                    },
-                                    errCufe => {
-                                      this.dataSource.data[position].status = false;
-                                      this._messageError = errCufe.error;
-                                      this.openDialog();
-                                      console.error(errCufe);
-                                    }
-                                  );
+                                  const dian = resVoucher.data.rows;
+                                  this._is.saveCufe(dian.cufe, invoice, dian.estado, dian.ReceivedDateTime, dian.ResponseDateTime)
+                                    .subscribe(
+                                      resCufe => {
+                                        this.dataSource.data[position].status = false;
+                                        this.router.navigate(['/factura/downloadpdf']);
+                                      },
+                                      errCufe => {
+                                        this.dataSource.data[position].status = false;
+                                        this._messageError = errCufe.error;
+                                        this.openDialog();
+                                        console.error(errCufe);
+                                      }
+                                    );
                                 },
                                 errVoucher => {
                                   this.dataSource.data[position].status = false;

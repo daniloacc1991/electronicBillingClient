@@ -94,10 +94,11 @@ export class PendingCufeComponent implements OnInit {
         resLogin => {
           this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion, puntoVenta ).subscribe(
             resVoucher => {
-              this._is.saveCufe(resVoucher.data.rows.cufe, invoice).subscribe(
+              const dataDIAN = resVoucher.data.rows;
+              this._is.saveCufe(dataDIAN.cufe, invoice, dataDIAN.estado, dataDIAN.ReceivedDateTime, dataDIAN.ResponseDateTime).subscribe(
                 resCufe => {
                   this.dataSource.data[position].status = false;
-                  this.router.navigate(['/downloadpdf']);
+                  this.router.navigate(['/factura/downloadpdf']);
                 },
                 errCufe => {
                   this.dataSource.data[position].status = false;
@@ -111,13 +112,13 @@ export class PendingCufeComponent implements OnInit {
               this.dataSource.data[position].status = false;
               this._messageError = errVoucher.error;
               this.openDialog();
-              this._is.deleteTransaccion(invoice).subscribe(
-                res => console.log(res),
-                errDelete => {
-                  this._messageError = errDelete.error;
-                  this.openDialog();
-                }
-              );
+              // this._is.deleteTransaccion(invoice).subscribe(
+              //   res => console.log(res),
+              //   errDelete => {
+              //     this._messageError = errDelete.error;
+              //     this.openDialog();
+              //   }
+              // );
               console.error(errVoucher);
             }
           );

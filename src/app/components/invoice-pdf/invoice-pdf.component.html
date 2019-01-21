@@ -1,9 +1,35 @@
 <div class="grid-container">
   <h1 class="mat-h1">Descargar Facturas</h1>
   <div class="col-12">
-    <mat-form-field>
-      <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
-    </mat-form-field>
+    <div class="row">
+      <div class="col-md-6 col-xs-12">
+        <mat-form-field>
+          <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+        </mat-form-field>
+      </div>
+      <div class="col-md-6 col-xs-12">
+        <div class="row">
+          <div class="col-md-5 col-xs-12">
+            <mat-form-field>
+              <input matInput [matDatepicker]="fechaInicio" placeholder="Fecha Inicio"
+              (dateChange)="changeFechaI($event)" [formControl]="fechaI" disabled>
+              <mat-datepicker-toggle matSuffix [for]="fechaInicio"></mat-datepicker-toggle>
+              <mat-datepicker #fechaInicio disabled="false"></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="col-md-5 col-xs-12">
+            <mat-form-field>
+              <input matInput [min]="minDateFin" [matDatepicker]="fechaFin" placeholder="Fecha Fin" [formControl]="fechaF" disabled>
+              <mat-datepicker-toggle matSuffix [for]="fechaFin"></mat-datepicker-toggle>
+              <mat-datepicker #fechaFin disabled="false"></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="col-mg 2">
+            <button mat-raised-button color="primary" (click)="consultar()">Consultar</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div [@flyInOut]="'in'" class="mat-elevation-z8">
       <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 table-responsive full-width-table">
@@ -40,9 +66,16 @@
           <td mat-cell *matCellDef="let element"> {{element.transaccion}} </td>
         </ng-container>
 
+        <!-- Punto_venta Column -->
         <ng-container matColumnDef="punto_venta">
           <th mat-header-cell *matHeaderCellDef mat-sort-header> Punto Venta </th>
           <td mat-cell *matCellDef="let element"> {{element.punto_venta}} </td>
+        </ng-container>
+
+        <!-- estado_fe Column -->
+        <ng-container matColumnDef="estado_fe">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Estado COMFIAR </th>
+          <td mat-cell *matCellDef="let element"> {{element.estado_fe}} </td>
         </ng-container>
 
         <!-- Name Column -->

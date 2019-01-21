@@ -38,15 +38,18 @@ export class InvoiceService {
     return this._http.delete<ResponseModel>(`${this.backAPI}deletetransaccion/${invoice}`);
   }
 
-  saveCufe(cufe: string, invoice: string) {
+  saveCufe(cufe: string, invoice: string, estado: string, recibeDian: string, respondeDian: string) {
     const httpParams = new HttpParams()
       .append('cufe', cufe)
-      .append('invoice', invoice);
+      .append('invoice', invoice)
+      .append('estado', estado)
+      .append('recibeDian', recibeDian)
+      .append('respondeDian', respondeDian);
     return this._http.put<ResponseModel>(`${this.backAPI}saveCufe`, httpParams);
   }
 
-  invoiceSend() {
-    return this._http.get<ResponseModel>(`${this.backAPI}invoicesSent`);
+  invoiceSend(fechaI: string, fechaF: string) {
+    return this._http.get<ResponseModel>(`${this.backAPI}invoicesSent/${fechaI}/${fechaF}`);
   }
 
   invoiceForYearxUser(date: string) {
