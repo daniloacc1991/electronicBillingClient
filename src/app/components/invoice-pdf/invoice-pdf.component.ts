@@ -42,13 +42,19 @@ export interface InvoiceSentsElement {
 export class InvoicePdfComponent implements OnInit {
   pdfSrc: any;
   _messageError: string;
-  fechaI = new FormControl({ value: new Date(), disabled: true }, Validators.required);
-  fechaF = new FormControl({ value: new Date(), disabled: true }, Validators.required);
-  minDateFin = new Date();
+  valueFechas = {
+    inicio: null,
+    fin: null
+  };
+
+  fechaI: FormControl;
+  fechaF: FormControl;
+  minDateFin: Date;
   // maxDateFin = new Date() + 1;
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns: string[] = [
     'consecutivo',
+    'fecha',
     'factura',
     'typeinvoce',
     'empresa',
@@ -74,9 +80,21 @@ export class InvoicePdfComponent implements OnInit {
     public _dialogError: MatDialog) {
     this._titleService.setTitle('Descargar Facturas - Facturación Electrónica');
     this._as.setApplicationName('Descargar Facturas - Facturación Electrónica');
+    if (!localStorage.getItem('descargaPDF')) {
+      this.valueFechas.inicio = new Date();
+      this.valueFechas.fin = new Date();
+      this.minDateFin = new Date();
+    } else {
+      this.valueFechas.inicio = new Date(JSON.parse(localStorage.getItem('descargaPDF')).inicio);
+      this.valueFechas.fin = new Date(JSON.parse(localStorage.getItem('descargaPDF')).fin);
+      this.minDateFin = new Date(JSON.parse(localStorage.getItem('descargaPDF')).inicio);
+    }
+    console.log(this.minDateFin);
   }
 
   ngOnInit() {
+    this.fechaI = new FormControl({ value: this.valueFechas.inicio, disabled: true }, Validators.required);
+    this.fechaF = new FormControl({ value: this.valueFechas.fin, disabled: true }, Validators.required);
     const fechaI = this.dateString(this.fechaI.value);
     const fechaF = this.dateString(this.fechaF.value);
     this.invoiceSent(fechaI, fechaF);
@@ -172,8 +190,15 @@ export class InvoicePdfComponent implements OnInit {
   }
 
   changeFechaI(event: MatDatepickerInputEvent<Date>) {
-    console.log(event.value);
     this.minDateFin = event.value;
+    this.valueFechas.inicio = event.value;
+    localStorage.setItem('descargaPDF', JSON.stringify(this.valueFechas));
+    // this.minDateFin = event.value
+  }
+
+  changeFechaF(event: MatDatepickerInputEvent<Date>) {
+    this.valueFechas.fin = event.value;
+    localStorage.setItem('descargaPDF', JSON.stringify(this.valueFechas));
     // this.minDateFin = event.value
   }
 }

@@ -9,7 +9,7 @@ import { AppSettings } from '../proyect.conf';
   providedIn: 'root'
 })
 export class ComfiarService {
-  private apiBack = `${AppSettings.backApi}v0/comfiar/`;
+  private apiBack = `${AppSettings.backApi}comfiar/`;
 
   constructor(private _http: HttpClient) { }
 

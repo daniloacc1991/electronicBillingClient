@@ -7,6 +7,7 @@ export const environment = {
   // host: '172.27.142.28',
   host: 'facturacionApi',
   port: 8080,
+  version: 'v1'
 };
 
 /*

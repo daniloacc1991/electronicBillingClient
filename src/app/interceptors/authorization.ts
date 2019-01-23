@@ -7,7 +7,11 @@ export class Autorization implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = localStorage.getItem('token');
     if (token) {
-      const duplicate = req.clone({ headers: req.headers.set('Authorization', `Bearer ${JSON.parse(token).token}`) });
+      const duplicate = req.clone(
+        {
+          headers: req.headers.set('Authorization', `Bearer ${JSON.parse(token).token}`),
+        }
+      );
       // console.log(duplicate);
       return next.handle(duplicate);
     } else {

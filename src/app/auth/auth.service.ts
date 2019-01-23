@@ -23,13 +23,13 @@ export class AuthService {
     const httpParams = new HttpParams()
       .append('user', username)
       .append('pass', password);
-    return this._http.post<ResponseModel>(`${this.backAPI}v0/user/login`, httpParams);
+    return this._http.post<ResponseModel>(`${this.backAPI}user/login`, httpParams);
   }
 
   logOff() {
     const httpParams = new HttpParams()
       .append('token', JSON.parse(localStorage.getItem('token')).token);
-    return this._http.put<ResponseModel>(`${this.backAPI}v0/user/logoff`, httpParams);
+    return this._http.put<ResponseModel>(`${this.backAPI}user/logoff`, httpParams);
   }
 
   getToken(): TokenModel {
@@ -66,6 +66,6 @@ export class AuthService {
   }
 
   getMenu() {
-    return this._http.get<ResponseModel>(`${this.backAPI}v0/user/menu`);
+    return this._http.get<ResponseModel>(`${this.backAPI}user/menu`);
   }
 }

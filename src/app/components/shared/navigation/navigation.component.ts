@@ -79,8 +79,7 @@ export class NavigationComponent implements AfterViewInit {
     this._as.logOff()
       .subscribe(
         res => {
-          localStorage.removeItem('user');
-          localStorage.removeItem('token');
+          localStorage.clear();
           this.router.navigate(['/login']);
         },
         err => {

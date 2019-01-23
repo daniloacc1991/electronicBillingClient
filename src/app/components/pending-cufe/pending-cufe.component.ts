@@ -40,12 +40,13 @@ export interface InvoiceSentsElement {
 export class PendingCufeComponent implements OnInit {
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns: string[] = ['consecutivo', 'factura', 'empresa', 'transaccion', 'punto_venta', 'enviar'];
+  displayedColumns: string[] = ['consecutivo', 'factura', 'fecha', 'empresa', 'transaccion', 'punto_venta', 'enviar'];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
   dataSource = new MatTableDataSource<InvoiceSentsElement>();
   _messageError: any;
+  scopeUser: string;
 
   applyFilter(filterValue: string) {
     this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -59,6 +60,10 @@ export class PendingCufeComponent implements OnInit {
     private _title: Title) {
       this._title.setTitle('Reenvio de Facturas - Facturación Electrónica');
       this._as.setApplicationName('Reenvio de Facturas- Facturación Electrónica');
+      if (this._as.getToken().scope === 'ADMIN') {
+        this.scopeUser = this._as.getToken().scope;
+        this.displayedColumns.push('usuario');
+      }
     }
 
   ngOnInit() {

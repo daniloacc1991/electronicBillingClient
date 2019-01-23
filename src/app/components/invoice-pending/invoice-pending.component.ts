@@ -39,9 +39,10 @@ export interface InvoicePendingElement {
   ]
 })
 export class InvoicePendingComponent implements OnInit {
-  displayedColumns: string[] = ['consecutivo', 'factura', 'typeinvoce', 'empresa', 'punto_venta', 'enviar', 'guardar'];
+  displayedColumns: string[] = ['consecutivo', 'factura', 'fecha', 'typeinvoce', 'empresa', 'punto_venta', 'enviar', 'guardar'];
   dataSource = new MatTableDataSource<InvoicePendingElement>();
   _messageError: string;
+  scopeUser: string;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -58,13 +59,20 @@ export class InvoicePendingComponent implements OnInit {
     public _dialogError: MatDialog) {
     this._title.setTitle('Envío de Facturas - Facturación Electrónica');
     this._as.setApplicationName('Envío de Facturas - Facturación Electrónica');
+    if (this._as.getToken().scope === 'ADMIN') {
+      this.scopeUser = this._as.getToken().scope;
+      this.displayedColumns.push('usuario');
+    }
   }
 
   ngOnInit() {
+    this.invoicePending();
+  }
+
+  invoicePending() {
     this._is.invoicePending()
       .subscribe(
         res => {
-          // console.log(res);
           this.dataSource.data = res.data.rows;
           this.dataSource.paginator = this.paginator;
           this.dataSource.sort = this.sort;
@@ -101,6 +109,7 @@ export class InvoicePendingComponent implements OnInit {
                     this.dataSource.data[position].status = false;
                     this._messageError = 'Favor informar a sistemas.';
                     this.openDialog();
+                    this.invoicePending();
                     return;
                   }
                   const transaccion = resSend.data.rows.transaccion;
@@ -114,6 +123,7 @@ export class InvoicePendingComponent implements OnInit {
                           resOut => {
                             if (resOut.data.rows === 'CargandoComprobantes') {
                               this.dataSource.data[position].status = false;
+                              this.invoicePending();
                               this.router.navigate(['/factura/pendingcufe']);
                             } else {
                               this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion, puntoVenta).subscribe(
@@ -129,6 +139,7 @@ export class InvoicePendingComponent implements OnInit {
                                         this.dataSource.data[position].status = false;
                                         this._messageError = errCufe.error;
                                         this.openDialog();
+                                        this.invoicePending();
                                         console.error(errCufe);
                                       }
                                     );
@@ -137,19 +148,21 @@ export class InvoicePendingComponent implements OnInit {
                                   this.dataSource.data[position].status = false;
                                   this._messageError = errVoucher.error;
                                   this.openDialog();
+                                  this.router.navigate(['/factura/pendingcufe']);
                                   console.error(errVoucher);
                                 }
                               );
                             }
                           },
                           errOut => {
-                            this._is.deleteTransaccion(invoice).subscribe(
-                              res => console.log(res),
-                              errDelete => {
-                                this._messageError = errDelete.error;
-                                this.openDialog();
-                              }
-                            );
+                            // this._is.deleteTransaccion(invoice).subscribe(
+                            //   res => console.log(res),
+                            //   errDelete => {
+                            //     this._messageError = errDelete.error;
+                            //     this.openDialog();
+                            //   }
+                            // );
+                            this.invoicePending();
                             this.dataSource.data[position].status = false;
                             this._messageError = errOut.error;
                             this.openDialog();
@@ -158,12 +171,14 @@ export class InvoicePendingComponent implements OnInit {
                         );
                       },
                       errSaveT => {
+                        this.invoicePending();
                         this.dataSource.data[position].status = false;
                         console.error(errSaveT);
                       }
                     );
                 },
                 errSend => {
+                  this.invoicePending();
                   this.dataSource.data[position].status = false;
                   this._messageError = errSend.error;
                   this.openDialog();
@@ -172,6 +187,7 @@ export class InvoicePendingComponent implements OnInit {
               );
             },
             errInvoice => {
+              this.invoicePending();
               this.dataSource.data[position].status = false;
               this._messageError = errInvoice.error;
               this.openDialog();
@@ -180,6 +196,7 @@ export class InvoicePendingComponent implements OnInit {
           );
         },
         errLogin => {
+          this.invoicePending();
           this.dataSource.data[position].status = false;
           this._messageError = errLogin.error;
           this.openDialog();

@@ -11,7 +11,7 @@ import { AuthService } from '../auth/auth.service';
 })
 export class InvoiceService {
 
-  private backAPI = `${AppSettings.backApi}v0/invoice/`;
+  private backAPI = `${AppSettings.backApi}invoice/`;
 
   constructor(private _http: HttpClient, private _as: AuthService) { }
 
