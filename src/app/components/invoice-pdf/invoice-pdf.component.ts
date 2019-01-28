@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { FormControl, Validators } from '@angular/forms';
@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import { delay } from 'rxjs/operators';
 
+import { RtaComprobanteModel } from '../../models/rtaComprobante';
 import { ErrorComponent } from '../shared/error/error.component';
 
 import { InvoiceService } from '../../services/invoice.service';
@@ -14,18 +15,25 @@ import { ComfiarService } from '../../services/index';
 import { AuthService } from '../../auth/auth.service';
 
 export interface InvoiceSentsElement {
-  position: string;
-  name: string;
+  consecutivo: string;
   empresa: string;
-  transaccion: string;
-  cufe: string;
+  estado_fe: string;
+  factura: string;
+  fecha: string;
+  path_pdf: boolean;
+  punto_venta: number;
+  save_local: boolean;
   status: boolean;
+  transaccion: number;
+  typeinvoce: string;
+  msj: string;
 }
 
 @Component({
   selector: 'app-invoice-pdf',
   templateUrl: './invoice-pdf.component.html',
   styleUrls: ['./invoice-pdf.component.scss'],
+  encapsulation: ViewEncapsulation.None,
   animations: [
     trigger('flyInOut', [
       state('in', style({ transform: 'translateX(0)' })),
@@ -62,7 +70,7 @@ export class InvoicePdfComponent implements OnInit {
     'punto_venta',
     'estado_fe',
     'enviar',
-    'save_local'
+    'save_local',
   ];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -89,7 +97,6 @@ export class InvoicePdfComponent implements OnInit {
       this.valueFechas.fin = new Date(JSON.parse(localStorage.getItem('descargaPDF')).fin);
       this.minDateFin = new Date(JSON.parse(localStorage.getItem('descargaPDF')).inicio);
     }
-    console.log(this.minDateFin);
   }
 
   ngOnInit() {
@@ -115,7 +122,7 @@ export class InvoicePdfComponent implements OnInit {
 
   pdf(position: number, invoice: string, transaccion: number, puntoVenta: number) {
     this.dataSource.data[position].status = true;
-    const dataCom = this._as.getDataUser();
+    const dataCom = this._as.getDataUserComfiar();
     this._cs.loginComfiar(dataCom.username, dataCom.password)
       .pipe(
         delay(1000)
@@ -200,5 +207,54 @@ export class InvoicePdfComponent implements OnInit {
     this.valueFechas.fin = event.value;
     localStorage.setItem('descargaPDF', JSON.stringify(this.valueFechas));
     // this.minDateFin = event.value
+  }
+
+  actualizarEstado(element: InvoiceSentsElement) {
+    // console.log(element);
+    const position = parseInt(element.consecutivo, 0) - 1;
+    const invoice = element.factura;
+    const puntoVenta = element.punto_venta;
+    this.dataSource.data[position].status = true;
+    const dataCom = this._as.getDataUserComfiar();
+    this._cs.loginComfiar(dataCom.username, dataCom.password)
+      .pipe(
+        delay(2000)
+      )
+      .subscribe(
+        resLogin => {
+          this._cs.resposeVoucher(resLogin.data.rows, invoice, puntoVenta).subscribe(
+            resVoucher => {
+              const rtaDian: RtaComprobanteModel = resVoucher.data.rows;
+              rtaDian.invoice = invoice;
+              this._is.saveCufe(rtaDian).subscribe(
+                resCufe => {
+                  this.dataSource.data[position].status = false;
+                  const fechaI = this.dateString(this.fechaI.value);
+                  const fechaF = this.dateString(this.fechaF.value);
+                  this.invoiceSent(fechaI, fechaF);
+                },
+                errCufe => {
+                  this.dataSource.data[position].status = false;
+                  this._messageError = errCufe.error;
+                  this.openDialog();
+                  console.error(errCufe);
+                }
+              );
+            },
+            errVoucher => {
+              this.dataSource.data[position].status = false;
+              this._messageError = errVoucher.error;
+              this.openDialog();
+              console.error(errVoucher);
+            }
+          );
+        },
+        errLogin => {
+          this.dataSource.data[position].status = false;
+          this._messageError = errLogin.error.error;
+          this.openDialog();
+          console.error(errLogin);
+        }
+      );
   }
 }

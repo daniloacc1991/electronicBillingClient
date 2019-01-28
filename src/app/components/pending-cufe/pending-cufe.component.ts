@@ -1,29 +1,24 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material';
+import { MatPaginator, MatSort } from '@angular/material';
 import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
+import { MessageService } from 'primeng/components/common/messageservice';
+import { BehaviorSubject, fromEvent } from 'rxjs';
+
+import { RtaComprobanteModel, TokenComfiar } from '../../models';
+import { PendingCufeDataSource, PendingCufeElement } from './pending-cufe.datasource';
 
 import { ErrorComponent } from '../shared/error/error.component';
 
 import { InvoiceService, ComfiarService } from '../../services/';
 import { AuthService } from '../../auth/auth.service';
-import { delay } from 'rxjs/operators';
-
-export interface InvoiceSentsElement {
-  position: string;
-  name: string;
-  empresa: string;
-  transaccion: string;
-  cufe: string;
-  status: boolean;
-}
 
 @Component({
   selector: 'app-pending-cufe',
   templateUrl: './pending-cufe.component.html',
   styleUrls: ['./pending-cufe.component.scss'],
+  providers: [MessageService],
   animations: [
     trigger('flyInOut', [
       state('in', style({ transform: 'translateX(0)' })),
@@ -44,35 +39,39 @@ export class PendingCufeComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-  dataSource = new MatTableDataSource<InvoiceSentsElement>();
+  @ViewChild('filter') filter: ElementRef;
+  dataSource: PendingCufeDataSource | null;
   _messageError: any;
   scopeUser: string;
-
-  applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
+  _data: BehaviorSubject<PendingCufeElement[]>;
 
   constructor(private _is: InvoiceService,
     private _cs: ComfiarService,
     private _as: AuthService,
-    private router: Router,
+    private messageService: MessageService,
     public _dialogError: MatDialog,
     private _title: Title) {
-      this._title.setTitle('Reenvio de Facturas - Facturación Electrónica');
-      this._as.setApplicationName('Reenvio de Facturas- Facturación Electrónica');
-      if (this._as.getToken().scope === 'ADMIN') {
-        this.scopeUser = this._as.getToken().scope;
-        this.displayedColumns.push('usuario');
-      }
+    this._title.setTitle('Reenvio de Facturas - Facturación Electrónica');
+    this._as.setApplicationName('Reenvio de Facturas- Facturación Electrónica');
+    if (this._as.getToken().scope === 'ADMIN') {
+      this.scopeUser = this._as.getToken().scope;
+      this.displayedColumns.push('usuario');
     }
+  }
 
   ngOnInit() {
     this._is.cufePending()
       .subscribe(
         res => {
-          this.dataSource.data = res.data.rows;
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
+          this._data = new BehaviorSubject(res.data.rows);
+          this.dataSource = new PendingCufeDataSource(this.paginator, this.sort, this._data);
+          fromEvent(this.filter.nativeElement, 'keyup')
+            .subscribe(() => {
+              if (!this.dataSource) {
+                return;
+              }
+              this.dataSource.filter = this.filter.nativeElement.value;
+            });
         },
         err => {
           console.log(err);
@@ -88,52 +87,58 @@ export class PendingCufeComponent implements OnInit {
     });
   }
 
-  consultarCufe(position: number, invoice: string, transaccion: number, puntoVenta: number) {
-    this.dataSource.data[position].status = true;
-    const dataCom = this._as.getDataUser();
-    this._cs.loginComfiar(dataCom.username, dataCom.password)
-      .pipe(
-        delay(1000)
-      )
-      .subscribe(
-        resLogin => {
-          this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion, puntoVenta ).subscribe(
-            resVoucher => {
-              const dataDIAN = resVoucher.data.rows;
-              this._is.saveCufe(dataDIAN.cufe, invoice, dataDIAN.estado, dataDIAN.ReceivedDateTime, dataDIAN.ResponseDateTime).subscribe(
-                resCufe => {
-                  this.dataSource.data[position].status = false;
-                  this.router.navigate(['/factura/downloadpdf']);
-                },
-                errCufe => {
-                  this.dataSource.data[position].status = false;
-                  this._messageError = errCufe.error;
-                  this.openDialog();
-                  console.error(errCufe);
+  async consultarCufe(element: PendingCufeElement) {
+    this.changeStatus(element);
+    const invoice = element.factura;
+    const puntoVenta = element.punto_venta;
+    const tokenComfiar: TokenComfiar = await this._cs.validTokenComfiar();
+    try {
+      this._cs.resposeVoucher(tokenComfiar, invoice, puntoVenta).subscribe(
+        resVoucher => {
+          const rtaDian: RtaComprobanteModel = resVoucher.data.rows;
+          rtaDian.invoice = invoice;
+          this._is.saveCufe(rtaDian).subscribe(
+            resCufe => {
+              this.changeStatus(element);
+              this.messageService.add(
+                {
+                  severity: 'success',
+                  summary: 'Guardando Respuesta Comprobante',
+                  detail: resCufe.data.rows.estado,
+                  life: 3000
                 }
               );
+              this.dataSource.deleteElement(element);
             },
-            errVoucher => {
-              this.dataSource.data[position].status = false;
-              this._messageError = errVoucher.error;
-              this.openDialog();
-              // this._is.deleteTransaccion(invoice).subscribe(
-              //   res => console.log(res),
-              //   errDelete => {
-              //     this._messageError = errDelete.error;
-              //     this.openDialog();
-              //   }
-              // );
-              console.error(errVoucher);
+            errCufe => {
+              this.changeStatus(element);
+              this.messageService.add({ severity: 'info', summary: 'Error', detail: errCufe.error, life: 3000 });
+              console.error(errCufe);
             }
           );
         },
-        errLogin => {
-          this.dataSource.data[position].status = false;
-          this._messageError = errLogin.error.error;
-          this.openDialog();
-          console.error(errLogin);
+        errVoucher => {
+          console.log(errVoucher);
+          this.changeStatus(element);
+          this.messageService.add({ severity: 'info', summary: 'Error', detail: errVoucher.error.error.msj, life: 3000 });
+          if (errVoucher.error.error.delete) {
+            this._is.deleteTransaccion(invoice).subscribe(
+              res => {
+                this.dataSource.deleteElement(element);
+              },
+              errDelete => console.error(errDelete)
+            );
+          }
         }
       );
+    } catch (e) {
+      this.changeStatus(element);
+      console.error(e);
+    }
+  }
+
+  changeStatus(e: PendingCufeElement) {
+    const index = this._data.value.indexOf(e, 0);
+    this.dataSource.data.value[index].status = !this.dataSource.data.value[index].status;
   }
 }

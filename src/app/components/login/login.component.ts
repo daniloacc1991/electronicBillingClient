@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { AuthService } from 'src/app/auth/auth.service';
 import { ErrorComponent } from '../shared/error/error.component';
-import { LoginModel } from '../../models/login';
+import { UserComfiarModel } from '../../models/userComfiar';
 import { delay } from 'rxjs/operators';
 
 @Component({
@@ -29,7 +29,7 @@ export class LoginComponent {
 
   onSubmit() {
     this._isLoading = !this._isLoading;
-    const loginData: LoginModel = {
+    const loginData: UserComfiarModel = {
       username: this.loginForm.value.username,
       password: this.loginForm.value.password
     };
@@ -39,7 +39,8 @@ export class LoginComponent {
       )
       .subscribe(
         res => {
-          localStorage.setItem('token', JSON.stringify(res.data));
+          const data = res.data;
+          this._as.setToken(data);
           this.router.navigate(['/home']);
           this._isLoading = !this._isLoading;
         },

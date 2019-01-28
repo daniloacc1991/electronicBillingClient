@@ -290,7 +290,7 @@ export class HomeComponent implements OnInit {
     private _title: Title) {
       this._title.setTitle('Home - Facturación Electrónica');
       this._as.setApplicationName('Home - Facturación Electrónica');
-      if (!localStorage.getItem('user')) {
+      if (!localStorage.getItem('userComfiar')) {
         this.openDialog();
       }
   }

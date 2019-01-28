@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { ComfiarService } from '../../services/comfiar.service';
 
-import { LoginModel } from '../../models/login';
+import { UserComfiarModel } from '../../models';
 import { delay } from 'rxjs/operators';
 
 export interface DialogData {
@@ -37,11 +37,12 @@ export class LoginComfiarComponent implements OnInit {
   }
 
   onSubmit() {
+
   }
 
   onClick(): void {
     this._isLoading = !this._isLoading;
-    const loginData: LoginModel = {
+    const loginData: UserComfiarModel = {
       username: this.loginForm.value.username,
       password: this.loginForm.value.password
     };
@@ -52,7 +53,8 @@ export class LoginComfiarComponent implements OnInit {
       .subscribe(
         res => {
           this._isLoading = !this._isLoading;
-          localStorage.setItem('user', JSON.stringify(loginData));
+          localStorage.setItem('userComfiar', JSON.stringify(loginData));
+          localStorage.setItem('tokenComfiar', JSON.stringify(res.data.rows));
           this._dialogRef.close('Credenciales de COMFIAR Correctas!');
         },
         err => {

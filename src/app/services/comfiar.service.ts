@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
-import { ResponseModel } from '../models/response';
-import { TokenComfiar } from '../models/tokenComfiar';
+import { ResponseModel, TokenComfiar } from '../models';
+import { UserComfiarModel } from '../models/userComfiar';
 import { AppSettings } from '../proyect.conf';
+import { delay } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -38,11 +39,10 @@ export class ComfiarService {
     return this._http.post<ResponseModel>(`${this.apiBack}salidaTransaccion`, httpParams);
   }
 
-  resposeVoucher(dateToken: TokenComfiar, invoice: string, transaccion: number, puntoVenta: number) {
+  resposeVoucher(dateToken: TokenComfiar, invoice: string, puntoVenta: number) {
     const httpParams = new HttpParams()
       .append('token', dateToken.token)
       .append('date', dateToken.date)
-      .append('transaccion', transaccion.toString())
       .append('invoice', invoice)
       .append('puntoVenta', puntoVenta.toString());
     return this._http.post<ResponseModel>(`${this.apiBack}respuestaComprobante`, httpParams);
@@ -56,5 +56,30 @@ export class ComfiarService {
       .append('invoice', invoice)
       .append('puntoVenta', puntoVenta.toString());
     return this._http.post<ResponseModel>(`${this.apiBack}consultarpdf`, httpParams);
+  }
+
+  validTokenComfiar(): Promise<TokenComfiar> {
+    return new Promise((resolve, reject) => {
+      const token: TokenComfiar = JSON.parse(localStorage.getItem('tokenComfiar'));
+      const dateToken = new Date(token.date);
+      const dateActual = new Date();
+      if (dateActual > dateToken) {
+        console.log('Login');
+        const date: UserComfiarModel = JSON.parse(localStorage.getItem('userComfiar'));
+        this.loginComfiar(date.username, date.password)
+          .subscribe(
+            res => {
+              localStorage.setItem('tokenComfiar', JSON.stringify(res.data.rows));
+              resolve(res.data.rows);
+            },
+            err => {
+              console.error(err);
+              reject(err);
+            }
+          );
+      } else {
+        resolve(token);
+      }
+    });
   }
 }

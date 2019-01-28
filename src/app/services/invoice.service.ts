@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 
 import { ResponseModel } from '../models/response';
+import { RtaComprobanteModel } from '../models/rtaComprobante';
 import { AppSettings } from '../proyect.conf';
 
 import { AuthService } from '../auth/auth.service';
@@ -38,13 +39,19 @@ export class InvoiceService {
     return this._http.delete<ResponseModel>(`${this.backAPI}deletetransaccion/${invoice}`);
   }
 
-  saveCufe(cufe: string, invoice: string, estado: string, recibeDian: string, respondeDian: string) {
+  // saveCufe(cufe: string, invoice: string, estado: string, recibeDian: string, respondeDian: string) {
+  //   const httpParams = new HttpParams()
+  //     .append('cufe', cufe)
+  //     .append('invoice', invoice)
+  //     .append('estado', estado)
+  //     .append('recibeDian', recibeDian)
+  //     .append('respondeDian', respondeDian);
+  //   return this._http.put<ResponseModel>(`${this.backAPI}saveCufe`, httpParams);
+  // }
+
+  saveCufe(rtaComprobanteModel: RtaComprobanteModel) {
     const httpParams = new HttpParams()
-      .append('cufe', cufe)
-      .append('invoice', invoice)
-      .append('estado', estado)
-      .append('recibeDian', recibeDian)
-      .append('respondeDian', respondeDian);
+      .append('rtaComprobante' , JSON.stringify(rtaComprobanteModel));
     return this._http.put<ResponseModel>(`${this.backAPI}saveCufe`, httpParams);
   }
 

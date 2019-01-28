@@ -36,13 +36,37 @@
 }
 
 .icons-blue {
-  color: green;
+  color: green !important;
 }
 
 .icons-red {
-  color: #f44336;
+  color: #f44336 !important;
 }
 
-.button-icon-pdf {
-  width: 0 !important;
+.btn-icon {
+  padding: 0px 4px 0px 0px;
+  color: inherit;
+  background: 0 0;
+  flex-shrink: 0;
+  border-radius: 50%;
+  box-sizing: border-box;
+  position: relative;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: pointer;
+  outline: 0;
+  border: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent
+}
+
+.div-center {
+  text-align: left;
+}
+
+.tooltip-red {
+  background: #b71c1c;
+  font-size: 16px;
 }

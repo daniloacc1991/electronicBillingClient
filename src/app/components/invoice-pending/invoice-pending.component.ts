@@ -1,11 +1,15 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import { MatSort, MatPaginator, MatTableDataSource } from '@angular/material';
+import { MatSort, MatPaginator } from '@angular/material';
 import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 import * as js2xmlparser from 'js2xmlparser';
 import { delay } from 'rxjs/operators';
+import { BehaviorSubject, fromEvent } from 'rxjs';
+import { MessageService } from 'primeng/components/common/messageservice';
+
+import { RtaComprobanteModel, TokenComfiar } from '../../models';
+import { InvoicePendingDataSource, InvoicePendingElement } from './invoice-pending.datasource';
 
 import { ErrorComponent } from '../shared/error/error.component';
 
@@ -13,18 +17,11 @@ import { InvoiceService } from '../../services/invoice.service';
 import { ComfiarService } from '../../services/index';
 import { AuthService } from '../../auth/auth.service';
 
-
-export interface InvoicePendingElement {
-  position: string;
-  name: string;
-  status: boolean;
-}
-
-
 @Component({
   selector: 'app-invoice-pending',
   templateUrl: './invoice-pending.component.html',
   styleUrls: ['./invoice-pending.component.scss'],
+  providers: [MessageService],
   animations: [
     trigger('flyInOut', [
       state('in', style({ transform: 'translateX(0)' })),
@@ -38,23 +35,23 @@ export interface InvoicePendingElement {
     ])
   ]
 })
+
 export class InvoicePendingComponent implements OnInit {
-  displayedColumns: string[] = ['consecutivo', 'factura', 'fecha', 'typeinvoce', 'empresa', 'punto_venta', 'enviar', 'guardar'];
-  dataSource = new MatTableDataSource<InvoicePendingElement>();
+  displayedColumns: string[] = ['consecutivo', 'empresa', 'factura', 'fecha', 'punto_venta', 'typeinvoce', 'enviar', 'guardar'];
+  dataSource: InvoicePendingDataSource | null;
   _messageError: string;
   scopeUser: string;
+  lengthData = 0;
+  _data: BehaviorSubject<InvoicePendingElement[]>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
-
-  applyFilter(filterValue: string) {
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
+  @ViewChild('filter') filter: ElementRef;
 
   constructor(private _is: InvoiceService,
     private _cs: ComfiarService,
     private _as: AuthService,
-    private router: Router,
+    private messageService: MessageService,
     private _title: Title,
     public _dialogError: MatDialog) {
     this._title.setTitle('Envío de Facturas - Facturación Electrónica');
@@ -73,9 +70,15 @@ export class InvoicePendingComponent implements OnInit {
     this._is.invoicePending()
       .subscribe(
         res => {
-          this.dataSource.data = res.data.rows;
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
+          this._data = new BehaviorSubject(res.data.rows);
+          this.dataSource = new InvoicePendingDataSource(this.paginator, this.sort, this._data);
+          fromEvent(this.filter.nativeElement, 'keyup')
+            .subscribe(() => {
+              if (!this.dataSource) {
+                return;
+              }
+              this.dataSource.filter = this.filter.nativeElement.value;
+            });
         },
         err => {
           console.error(err);
@@ -91,121 +94,118 @@ export class InvoicePendingComponent implements OnInit {
     });
   }
 
-  sendInvoice(position: number, invoice: string, puntoVenta: number) {
-    this.dataSource.data[position].status = true;
-    const dataCom = this._as.getDataUser();
-    this._cs.loginComfiar(dataCom.username, dataCom.password)
-      .pipe(
-        delay(1000)
-      )
+  async sendInvoice(element: InvoicePendingElement) {
+    this.changeStatus(element);
+    const puntoVenta = element.punto_venta;
+    const invoice = element.factura;
+    const tokenComfiar: TokenComfiar = await this._cs.validTokenComfiar();
+    this._is.invoice(invoice)
+      .pipe(delay(2000))
       .subscribe(
-        resLogin => {
-          this._is.invoice(invoice).subscribe(
-            resInvoice => {
-              const _xml = this.xmlparse(resInvoice.data.rows);
-              this._cs.sendInvoice(resLogin.data.rows, _xml, puntoVenta).subscribe(
-                resSend => {
-                  if (!resSend.data.rows) {
-                    this.dataSource.data[position].status = false;
-                    this._messageError = 'Favor informar a sistemas.';
-                    this.openDialog();
-                    this.invoicePending();
-                    return;
-                  }
-                  const transaccion = resSend.data.rows.transaccion;
-                  this._is.saveTransaccion(invoice, transaccion)
-                    .pipe(
-                      delay(4000)
-                    )
-                    .subscribe(
-                      resSaveT => {
-                        this._cs.outTransaccion(resLogin.data.rows, transaccion).subscribe(
-                          resOut => {
-                            if (resOut.data.rows === 'CargandoComprobantes') {
-                              this.dataSource.data[position].status = false;
-                              this.invoicePending();
-                              this.router.navigate(['/factura/pendingcufe']);
-                            } else {
-                              this._cs.resposeVoucher(resLogin.data.rows, invoice, transaccion, puntoVenta).subscribe(
-                                resVoucher => {
-                                  const dian = resVoucher.data.rows;
-                                  this._is.saveCufe(dian.cufe, invoice, dian.estado, dian.ReceivedDateTime, dian.ResponseDateTime)
-                                    .subscribe(
-                                      resCufe => {
-                                        this.dataSource.data[position].status = false;
-                                        this.router.navigate(['/factura/downloadpdf']);
-                                      },
-                                      errCufe => {
-                                        this.dataSource.data[position].status = false;
-                                        this._messageError = errCufe.error;
-                                        this.openDialog();
-                                        this.invoicePending();
-                                        console.error(errCufe);
+        resInvoice => {
+          const _xml = this.xmlparse(resInvoice.data.rows);
+          this._cs.sendInvoice(tokenComfiar, _xml, puntoVenta).subscribe(
+            resSend => {
+              const transaccion = resSend.data.rows.transaccion;
+              this._is.saveTransaccion(invoice, transaccion)
+                .pipe(
+                  delay(2000)
+                )
+                .subscribe(
+                  resSaveT => {
+                    this._cs.outTransaccion(tokenComfiar, transaccion).subscribe(
+                      resOut => {
+                        if (resOut.data.rows.Estado === 'CargandoComprobantes') {
+                          this.dataSource.deleteElement(element);
+                          this.messageService.add(
+                            { severity: 'info', summary: 'Salida Transacción', detail: resOut.data.rows.estado, life: 3000 }
+                          );
+                          this.changeStatus(element);
+                        } else {
+                          this._cs.resposeVoucher(tokenComfiar, invoice, puntoVenta).subscribe(
+                            resVoucher => {
+                              const rtaDian: RtaComprobanteModel = resVoucher.data.rows;
+                              rtaDian.invoice = invoice;
+                              this._is.saveCufe(rtaDian)
+                                .subscribe(
+                                  resCufe => {
+                                    this.dataSource.deleteElement(element);
+                                    this.changeStatus(element);
+                                    this.messageService.add(
+                                      {
+                                        severity: 'success',
+                                        summary: 'Guardando Respuesta Comprobante',
+                                        detail: resCufe.data.rows.estado,
+                                        life: 3000
                                       }
                                     );
-                                },
-                                errVoucher => {
-                                  this.dataSource.data[position].status = false;
-                                  this._messageError = errVoucher.error;
-                                  this.openDialog();
-                                  this.router.navigate(['/factura/pendingcufe']);
-                                  console.error(errVoucher);
+                                  },
+                                  errCufe => {
+                                    this.changeStatus(element);
+                                    console.error(errCufe);
+                                  }
+                                );
+                            },
+                            errVoucher => {
+                              this.changeStatus(element);
+                              console.error(errVoucher);
+                              this.messageService.add(
+                                {
+                                  severity: 'info',
+                                  summary: 'Error',
+                                  detail: errVoucher.error.error.msj,
+                                  life: 3000
                                 }
                               );
+                              if (errVoucher.error.error.delete) {
+                                this._is.deleteTransaccion(invoice).subscribe(
+                                  res => this.dataSource.deleteElement(element),
+                                  errDelete => console.error(errDelete)
+                                );
+                              }
                             }
-                          },
-                          errOut => {
-                            // this._is.deleteTransaccion(invoice).subscribe(
-                            //   res => console.log(res),
-                            //   errDelete => {
-                            //     this._messageError = errDelete.error;
-                            //     this.openDialog();
-                            //   }
-                            // );
-                            this.invoicePending();
-                            this.dataSource.data[position].status = false;
-                            this._messageError = errOut.error;
-                            this.openDialog();
-                            console.error(errOut);
-                          }
-                        );
+                          );
+                        }
                       },
-                      errSaveT => {
-                        this.invoicePending();
-                        this.dataSource.data[position].status = false;
-                        console.error(errSaveT);
+                      errOut => {
+                        console.error(errOut);
+                        this.changeStatus(element);
+                        this.messageService.add({ severity: 'error', summary: 'Error', detail: errOut.error.error.msj, life: 3000 });
+                        if (errOut.error.error.delete) {
+                          this._is.deleteTransaccion(invoice).subscribe(
+                            res => this.dataSource.deleteElement(element),
+                            errDelete => console.error(errDelete)
+                          );
+                        }
                       }
                     );
-                },
-                errSend => {
-                  this.invoicePending();
-                  this.dataSource.data[position].status = false;
-                  this._messageError = errSend.error;
-                  this.openDialog();
-                  console.error(errSend);
-                }
-              );
+                  },
+                  errSaveT => {
+                    console.error(errSaveT);
+                    this.changeStatus(element);
+                    this.dataSource.deleteElement(element);
+                    this.messageService.add({ severity: 'error', summary: 'Error', detail: errSaveT.error.error.msj, life: 3000 });
+                  }
+                );
             },
-            errInvoice => {
-              this.invoicePending();
-              this.dataSource.data[position].status = false;
-              this._messageError = errInvoice.error;
-              this.openDialog();
-              console.error(errInvoice);
+            errSend => {
+              console.error(errSend);
+              this.changeStatus(element);
+              this.dataSource.deleteElement(element);
+              this.messageService.add({ severity: 'error', summary: 'Error', detail: errSend.error.error.msj, life: 3000 });
             }
           );
         },
-        errLogin => {
-          this.invoicePending();
-          this.dataSource.data[position].status = false;
-          this._messageError = errLogin.error;
-          this.openDialog();
-          console.error(errLogin);
+        errInvoice => {
+          console.error(errInvoice.error);
+          this.changeStatus(element);
+          this.dataSource.deleteElement(element);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: errInvoice.error.error.msj, life: 3000 });
         }
       );
   }
 
-  saveXML(position: number, invoice: string) {
+  saveXML(invoice: string) {
     this._is.invoice(invoice).subscribe(
       res => {
         const _xml = this.xmlparse(res.data.rows);
@@ -237,5 +237,10 @@ export class InvoicePendingComponent implements OnInit {
       },
     };
     return js2xmlparser.parse('fe:Invoice', data, options);
+  }
+
+  changeStatus(e: InvoicePendingElement) {
+    const index = this._data.value.indexOf(e, 0);
+    this.dataSource.data.value[index].status = !this.dataSource.data.value[index].status;
   }
 }

@@ -3,11 +3,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 
-import { LoginModel } from '../models/login';
-import { ResponseModel } from '../models/response';
-import { TokenModel } from '../models/token';
+import { TokenBearerModel, ResponseModel } from '../models/';
+import { UserComfiarModel } from '../models/userComfiar';
 
 import { AppSettings } from '../proyect.conf';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +17,7 @@ export class AuthService {
   private backAPI = AppSettings.backApi;
   private applicationName = 'Facturación Electronica';
 
-  constructor(private _http: HttpClient, private router: Router) { }
+  constructor(private _http: HttpClient) { }
 
   login(username: string, password: string) {
     const httpParams = new HttpParams()
@@ -32,20 +32,20 @@ export class AuthService {
     return this._http.put<ResponseModel>(`${this.backAPI}user/logoff`, httpParams);
   }
 
-  getToken(): TokenModel {
+  getToken(): TokenBearerModel {
     return JSON.parse(localStorage.getItem('token'));
   }
 
-  setToken(data) {
+  setToken(data: TokenBearerModel) {
     localStorage.setItem('token', JSON.stringify(data));
   }
 
-  getDataUser(): LoginModel {
-    return JSON.parse(localStorage.getItem('user'));
+  getDataUserComfiar(): UserComfiarModel {
+    return JSON.parse(localStorage.getItem('userComfiar'));
   }
 
-  setDataUser(data: LoginModel) {
-    localStorage.setItem('user', JSON.stringify(data));
+  setDataUser(data: UserComfiarModel) {
+    localStorage.setItem('userComfiar', JSON.stringify(data));
   }
 
   loggedIn(): boolean {

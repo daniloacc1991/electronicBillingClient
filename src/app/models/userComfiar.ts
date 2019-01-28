@@ -1,4 +1,4 @@
-export interface LoginModel {
+export interface UserComfiarModel {
   username: string;
   password: string;
 }

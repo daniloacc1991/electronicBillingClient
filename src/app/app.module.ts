@@ -21,6 +21,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ChartModule } from 'primeng/chart';
 import { ToastModule } from 'primeng/toast';
@@ -89,7 +90,8 @@ import { NotePendingComponent } from './components/note-pending/note-pending.com
     MessageModule,
     FormsModule,
     MatProgressBarModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatTooltipModule
   ],
   entryComponents: [
     ErrorComponent,
