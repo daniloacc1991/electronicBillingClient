@@ -4,7 +4,6 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { ResponseModel, TokenComfiar } from '../models';
 import { UserComfiarModel } from '../models/userComfiar';
 import { AppSettings } from '../proyect.conf';
-import { delay } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -59,12 +58,14 @@ export class ComfiarService {
   }
 
   validTokenComfiar(): Promise<TokenComfiar> {
+    if (!localStorage.getItem('tokenComfiar')) {
+      localStorage.clear();
+    }
     return new Promise((resolve, reject) => {
       const token: TokenComfiar = JSON.parse(localStorage.getItem('tokenComfiar'));
       const dateToken = new Date(token.date);
       const dateActual = new Date();
       if (dateActual > dateToken) {
-        console.log('Login');
         const date: UserComfiarModel = JSON.parse(localStorage.getItem('userComfiar'));
         this.loginComfiar(date.username, date.password)
           .subscribe(

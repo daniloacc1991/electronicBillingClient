@@ -63,6 +63,9 @@ export class InvoicePendingComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.paginator._intl.itemsPerPageLabel = 'Items por página.';
+    this.paginator._intl.nextPageLabel = 'Siguiente';
+    this.paginator._intl.previousPageLabel = 'Anterior';
     this.invoicePending();
   }
 
@@ -116,11 +119,11 @@ export class InvoicePendingComponent implements OnInit {
                     this._cs.outTransaccion(tokenComfiar, transaccion).subscribe(
                       resOut => {
                         if (resOut.data.rows.Estado === 'CargandoComprobantes') {
+                          this.changeStatus(element);
                           this.dataSource.deleteElement(element);
                           this.messageService.add(
                             { severity: 'info', summary: 'Salida Transacción', detail: resOut.data.rows.estado, life: 3000 }
                           );
-                          this.changeStatus(element);
                         } else {
                           this._cs.resposeVoucher(tokenComfiar, invoice, puntoVenta).subscribe(
                             resVoucher => {
@@ -129,8 +132,8 @@ export class InvoicePendingComponent implements OnInit {
                               this._is.saveCufe(rtaDian)
                                 .subscribe(
                                   resCufe => {
-                                    this.dataSource.deleteElement(element);
                                     this.changeStatus(element);
+                                    this.dataSource.deleteElement(element);
                                     this.messageService.add(
                                       {
                                         severity: 'success',
@@ -159,7 +162,7 @@ export class InvoicePendingComponent implements OnInit {
                               );
                               if (errVoucher.error.error.delete) {
                                 this._is.deleteTransaccion(invoice).subscribe(
-                                  res => this.dataSource.deleteElement(element),
+                                  res => console.log(res),
                                   errDelete => console.error(errDelete)
                                 );
                               }
@@ -173,7 +176,7 @@ export class InvoicePendingComponent implements OnInit {
                         this.messageService.add({ severity: 'error', summary: 'Error', detail: errOut.error.error.msj, life: 3000 });
                         if (errOut.error.error.delete) {
                           this._is.deleteTransaccion(invoice).subscribe(
-                            res => this.dataSource.deleteElement(element),
+                            res => console.log(res),
                             errDelete => console.error(errDelete)
                           );
                         }
@@ -183,7 +186,9 @@ export class InvoicePendingComponent implements OnInit {
                   errSaveT => {
                     console.error(errSaveT);
                     this.changeStatus(element);
-                    this.dataSource.deleteElement(element);
+                    if (errSaveT.error.error.delete) {
+                      this.dataSource.deleteElement(element);
+                    }
                     this.messageService.add({ severity: 'error', summary: 'Error', detail: errSaveT.error.error.msj, life: 3000 });
                   }
                 );
@@ -191,15 +196,20 @@ export class InvoicePendingComponent implements OnInit {
             errSend => {
               console.error(errSend);
               this.changeStatus(element);
-              this.dataSource.deleteElement(element);
+              if (errSend.error.error.delete) {
+                this.dataSource.deleteElement(element);
+              }
               this.messageService.add({ severity: 'error', summary: 'Error', detail: errSend.error.error.msj, life: 3000 });
             }
           );
         },
         errInvoice => {
-          console.error(errInvoice.error);
+
+          console.error(errInvoice);
           this.changeStatus(element);
-          this.dataSource.deleteElement(element);
+          if (errInvoice.error.error.delete) {
+            this.dataSource.deleteElement(element);
+          }
           this.messageService.add({ severity: 'error', summary: 'Error', detail: errInvoice.error.error.msj, life: 3000 });
         }
       );
@@ -240,7 +250,7 @@ export class InvoicePendingComponent implements OnInit {
   }
 
   changeStatus(e: InvoicePendingElement) {
-    const index = this._data.value.indexOf(e, 0);
+    const index = this.dataSource.data.value.indexOf(e, 0);
     this.dataSource.data.value[index].status = !this.dataSource.data.value[index].status;
   }
 }

@@ -34,13 +34,11 @@ export class InvoicePendingDataSource extends DataSource<InvoicePendingElement> 
     this._filterChange.next(filter);
   }
 
-  data: BehaviorSubject<InvoicePendingElement[]>;
   filteredData: InvoicePendingElement[] = [];
   renderedData: InvoicePendingElement[] = [];
 
-  constructor(private paginator: MatPaginator, private sort: MatSort, private _data: BehaviorSubject<InvoicePendingElement[]>) {
+  constructor(private paginator: MatPaginator, private sort: MatSort, public data: BehaviorSubject<InvoicePendingElement[]>) {
     super();
-    this.data = this._data;
     this._filterChange.subscribe(() => this.paginator.pageIndex = 0);
   }
 
@@ -64,7 +62,7 @@ export class InvoicePendingDataSource extends DataSource<InvoicePendingElement> 
 
     return merge(...dataMutations).pipe(map(() => {
       // return this.getPagedData(this.getSortedData([...this.data]));
-      this.filteredData = this._data.value.slice()
+      this.filteredData = this.data.value.slice()
         .filter((e: InvoicePendingElement) => {
           const searchStr = (e.consecutivo + e.empresa + e.factura + e.fecha + e.typeinvoce + e.usuario).toLowerCase();
           return searchStr.indexOf(this.filter.toLowerCase()) !== -1;
@@ -111,6 +109,9 @@ export class InvoicePendingDataSource extends DataSource<InvoicePendingElement> 
         case 'consecutivo': [propertyA, propertyB] = [a.consecutivo, b.consecutivo]; break;
         case 'empresa': [propertyA, propertyB] = [a.empresa, b.empresa]; break;
         case 'fecha': [propertyA, propertyB] = [a.fecha, b.fecha]; break;
+        case 'punto_venta': [propertyA, propertyB] = [a.punto_venta, b.punto_venta]; break;
+        case 'typeinvoce': [propertyA, propertyB] = [a.typeinvoce, b.typeinvoce]; break;
+        case 'usuario': [propertyA, propertyB] = [a.usuario, b.usuario]; break;
       }
 
       const valueA = isNaN(+propertyA) ? propertyA : +propertyA;

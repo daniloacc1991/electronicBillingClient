@@ -93,7 +93,7 @@
             <!-- Facturas Autorizadas -->
             <div *ngIf="element.estado_fe === 'AUTORIZADO' || element.estado_fe === 'ACEPTADO'" class="div-center">
               <mat-spinner *ngIf="element.status" [diameter]="40"></mat-spinner>
-              <button *ngIf="!element.status && !element.save_local" (click)="pdf(element.consecutivo -1, element.factura, element.transaccion, element.punto_venta)"
+              <button *ngIf="!element.status && !element.save_local" (click)="pdf(element)"
                 class="btn-icon">
                 <i class="fa-2x far fa-file-pdf"></i>
               </button>
@@ -104,7 +104,7 @@
             </div>
 
             <!-- Facturas Aceptadas -->
-            <!-- <div *ngIf="element.estado_fe === 'ACEPTADO'" class="div-center">
+            <!-- <div *ngIf="element.estado_fe === 'ACEPTADO' || element.estado_fe === 'OBSERVADO'" class="div-center">
               <mat-spinner *ngIf="element.status" [diameter]="40"></mat-spinner>
               <button *ngIf="!element.status" (click)="actualizarEstado(element)" class="btn-icon icons-blue">
                 <i class="material-icons">sync</i>

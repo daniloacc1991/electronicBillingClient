@@ -5,9 +5,8 @@ import { FormControl, Validators } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
-import { delay } from 'rxjs/operators';
 
-import { RtaComprobanteModel } from '../../models/rtaComprobante';
+import { RtaComprobanteModel, TokenComfiar } from '../../models';
 import { ErrorComponent } from '../shared/error/error.component';
 
 import { InvoiceService } from '../../services/invoice.service';
@@ -120,33 +119,23 @@ export class InvoicePdfComponent implements OnInit {
     );
   }
 
-  pdf(position: number, invoice: string, transaccion: number, puntoVenta: number) {
-    this.dataSource.data[position].status = true;
-    const dataCom = this._as.getDataUserComfiar();
-    this._cs.loginComfiar(dataCom.username, dataCom.password)
-      .pipe(
-        delay(1000)
-      )
+  async pdf(element: InvoiceSentsElement) {
+    this.changeStatus(element);
+    const invoice = element.factura;
+    const transaccion = element.transaccion;
+    const puntoVenta = element.punto_venta;
+    const tokenComfiar: TokenComfiar = await this._cs.validTokenComfiar();
+    this._cs.donwloadPDF(tokenComfiar, invoice, transaccion, puntoVenta)
       .subscribe(
-        resLogin => {
-          this._cs.donwloadPDF(resLogin.data.rows, invoice, transaccion, puntoVenta).subscribe(
-            resPDF => {
-              this.converToPdf(resPDF.data.rows, invoice);
-              this.dataSource.data[position].status = false;
-              this.ngOnInit();
-            },
-            errPDF => {
-              console.error(errPDF);
-              this.dataSource.data[position].status = false;
-              this._messageError = errPDF.error;
-              this.openDialog();
-            }
-          );
+        resPDF => {
+          this.converToPdf(resPDF.data.rows, invoice);
+          this.changeStatus(element);
+          this.applyFilter('');
         },
-        errLogin => {
-          console.error(errLogin);
-          this.dataSource.data[position].status = false;
-          this._messageError = errLogin.error;
+        errPDF => {
+          console.error(errPDF);
+          this.changeStatus(element);
+          this._messageError = errPDF.error;
           this.openDialog();
         }
       );
@@ -209,52 +198,39 @@ export class InvoicePdfComponent implements OnInit {
     // this.minDateFin = event.value
   }
 
-  actualizarEstado(element: InvoiceSentsElement) {
-    // console.log(element);
-    const position = parseInt(element.consecutivo, 0) - 1;
+  async actualizarEstado(element: InvoiceSentsElement) {
     const invoice = element.factura;
     const puntoVenta = element.punto_venta;
-    this.dataSource.data[position].status = true;
-    const dataCom = this._as.getDataUserComfiar();
-    this._cs.loginComfiar(dataCom.username, dataCom.password)
-      .pipe(
-        delay(2000)
-      )
-      .subscribe(
-        resLogin => {
-          this._cs.resposeVoucher(resLogin.data.rows, invoice, puntoVenta).subscribe(
-            resVoucher => {
-              const rtaDian: RtaComprobanteModel = resVoucher.data.rows;
-              rtaDian.invoice = invoice;
-              this._is.saveCufe(rtaDian).subscribe(
-                resCufe => {
-                  this.dataSource.data[position].status = false;
-                  const fechaI = this.dateString(this.fechaI.value);
-                  const fechaF = this.dateString(this.fechaF.value);
-                  this.invoiceSent(fechaI, fechaF);
-                },
-                errCufe => {
-                  this.dataSource.data[position].status = false;
-                  this._messageError = errCufe.error;
-                  this.openDialog();
-                  console.error(errCufe);
-                }
-              );
-            },
-            errVoucher => {
-              this.dataSource.data[position].status = false;
-              this._messageError = errVoucher.error;
-              this.openDialog();
-              console.error(errVoucher);
-            }
-          );
-        },
-        errLogin => {
-          this.dataSource.data[position].status = false;
-          this._messageError = errLogin.error.error;
-          this.openDialog();
-          console.error(errLogin);
-        }
-      );
+    this.changeStatus(element);
+    const tokenComfiar: TokenComfiar = await this._cs.validTokenComfiar();
+    this._cs.resposeVoucher(tokenComfiar, invoice, puntoVenta).subscribe(
+      resVoucher => {
+        const rtaDian: RtaComprobanteModel = resVoucher.data.rows;
+        rtaDian.invoice = invoice;
+        this._is.saveCufe(rtaDian).subscribe(
+          resCufe => {
+            this.changeStatus(element);
+            this.applyFilter('');
+          },
+          errCufe => {
+            this.changeStatus(element);
+            this._messageError = errCufe.error;
+            this.openDialog();
+            console.error(errCufe);
+          }
+        );
+      },
+      errVoucher => {
+        this.changeStatus(element);
+        this._messageError = errVoucher.error;
+        this.openDialog();
+        console.error(errVoucher);
+      }
+    );
+  }
+
+  changeStatus(e: InvoiceSentsElement) {
+    const index = this.dataSource.data.indexOf(e, 0);
+    this.dataSource.data[index].status = !this.dataSource.data[index].status;
   }
 }

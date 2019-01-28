@@ -30,6 +30,7 @@ import { MessageModule } from 'primeng/message';
 
 import { AuthGuard } from './auth/auth.guard';
 import { AppRoutingModule } from './app-routing.module';
+import { Autorization } from './interceptors/authorization';
 
 import { AppComponent } from './app.component';
 import { NavigationComponent } from './components/shared/navigation/navigation.component';
@@ -40,8 +41,6 @@ import { ErrorComponent } from './components/shared/error/error.component';
 import { InvoicePdfComponent } from './components/invoice-pdf/invoice-pdf.component';
 import { PendingCufeComponent } from './components/pending-cufe/pending-cufe.component';
 import { LoginComfiarComponent } from './components/login-comfiar/login-comfiar.component';
-
-import { Autorization } from './interceptors/authorization';
 import { MenuListItemComponent } from './components/shared/menu-list-item/menu-list-item.component';
 import { NotePendingComponent } from './components/note-pending/note-pending.component';
 
