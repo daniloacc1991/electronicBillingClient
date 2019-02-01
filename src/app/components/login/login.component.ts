@@ -35,7 +35,7 @@ export class LoginComponent {
     };
     this._as.login(loginData.username, loginData.password)
       .pipe(
-        delay(2000)
+        delay(1000)
       )
       .subscribe(
         res => {

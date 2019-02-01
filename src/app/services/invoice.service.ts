@@ -5,8 +5,6 @@ import { ResponseModel } from '../models/response';
 import { RtaComprobanteModel } from '../models/rtaComprobante';
 import { AppSettings } from '../proyect.conf';
 
-import { AuthService } from '../auth/auth.service';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -14,7 +12,7 @@ export class InvoiceService {
 
   private backAPI = `${AppSettings.backApi}invoice/`;
 
-  constructor(private _http: HttpClient, private _as: AuthService) { }
+  constructor(private _http: HttpClient) { }
 
   invoicePending() {
     return this._http.get<ResponseModel>(`${this.backAPI}pending`);
@@ -38,16 +36,6 @@ export class InvoiceService {
   deleteTransaccion(invoice: string) {
     return this._http.delete<ResponseModel>(`${this.backAPI}deletetransaccion/${invoice}`);
   }
-
-  // saveCufe(cufe: string, invoice: string, estado: string, recibeDian: string, respondeDian: string) {
-  //   const httpParams = new HttpParams()
-  //     .append('cufe', cufe)
-  //     .append('invoice', invoice)
-  //     .append('estado', estado)
-  //     .append('recibeDian', recibeDian)
-  //     .append('respondeDian', respondeDian);
-  //   return this._http.put<ResponseModel>(`${this.backAPI}saveCufe`, httpParams);
-  // }
 
   saveCufe(rtaComprobanteModel: RtaComprobanteModel) {
     const httpParams = new HttpParams()

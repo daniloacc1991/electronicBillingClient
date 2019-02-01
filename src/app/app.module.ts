@@ -36,13 +36,15 @@ import { AppComponent } from './app.component';
 import { NavigationComponent } from './components/shared/navigation/navigation.component';
 import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
-import { InvoicePendingComponent } from './components/invoice-pending/invoice-pending.component';
+import { InvoicePendingComponent } from './components/invoices/invoice-pending/invoice-pending.component';
 import { ErrorComponent } from './components/shared/error/error.component';
-import { InvoicePdfComponent } from './components/invoice-pdf/invoice-pdf.component';
-import { PendingCufeComponent } from './components/pending-cufe/pending-cufe.component';
+import { InvoicePdfComponent } from './components/invoices/invoice-pdf/invoice-pdf.component';
+import { PendingCufeComponent } from './components/invoices/pending-cufe/pending-cufe.component';
 import { LoginComfiarComponent } from './components/login-comfiar/login-comfiar.component';
 import { MenuListItemComponent } from './components/shared/menu-list-item/menu-list-item.component';
-import { NotePendingComponent } from './components/note-pending/note-pending.component';
+import { NotePendingComponent } from './components/notes/note-pending/note-pending.component';
+import { NoteResendComponent } from './components/notes/note-resend/note-resend.component';
+import { NotePdfComponent } from './components/notes/note-pdf/note-pdf.component';
 
 @NgModule({
   declarations: [
@@ -56,7 +58,9 @@ import { NotePendingComponent } from './components/note-pending/note-pending.com
     PendingCufeComponent,
     LoginComfiarComponent,
     MenuListItemComponent,
-    NotePendingComponent
+    NotePendingComponent,
+    NoteResendComponent,
+    NotePdfComponent
   ],
   imports: [
     BrowserModule,

@@ -6,13 +6,13 @@ import { Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/components/common/messageservice';
 import { BehaviorSubject, fromEvent } from 'rxjs';
 
-import { RtaComprobanteModel, TokenComfiar } from '../../models';
-import { PendingCufeDataSource, PendingCufeElement } from './pending-cufe.datasource';
+import { RtaComprobanteModel, TokenComfiar } from '../../../models';
+import { PendingCufeDataSource, PendingCufeElement } from './pending-cufe-datasource';
 
-import { ErrorComponent } from '../shared/error/error.component';
+import { ErrorComponent } from '../../shared/error/error.component';
 
-import { InvoiceService, ComfiarService } from '../../services/';
-import { AuthService } from '../../auth/auth.service';
+import { InvoiceService, ComfiarService } from '../../../services/';
+import { AuthService } from '../../../auth/auth.service';
 
 @Component({
   selector: 'app-pending-cufe',
@@ -91,9 +91,10 @@ export class PendingCufeComponent implements OnInit {
     this.changeStatus(element);
     const invoice = element.factura;
     const puntoVenta = element.punto_venta;
+    const tipo_transaccion = element.tipo_transaccion;
     const tokenComfiar: TokenComfiar = await this._cs.validTokenComfiar();
     try {
-      this._cs.resposeVoucher(tokenComfiar, invoice, puntoVenta).subscribe(
+      this._cs.resposeVoucher(tokenComfiar, invoice, puntoVenta, tipo_transaccion).subscribe(
         resVoucher => {
           const rtaDian: RtaComprobanteModel = resVoucher.data.rows;
           rtaDian.invoice = invoice;

@@ -21,11 +21,12 @@ export class ComfiarService {
     return this._http.post<ResponseModel>(`${this.apiBack}login`, httpParams);
   }
 
-  sendInvoice(dateToken: TokenComfiar, xml: string, puntoVenta: number) {
+  sendInvoice(dateToken: TokenComfiar, xml: string, puntoVenta: number, tipo_transaccion: number) {
     const httpParams = new HttpParams()
       .append('token', dateToken.token)
       .append('date', dateToken.date)
       .append('invoice', xml)
+      .append('tipo_transaccion', tipo_transaccion.toString())
       .append('puntoVenta', puntoVenta.toString());
     return this._http.post<ResponseModel>(`${this.apiBack}invoice`, httpParams);
   }
@@ -38,21 +39,23 @@ export class ComfiarService {
     return this._http.post<ResponseModel>(`${this.apiBack}salidaTransaccion`, httpParams);
   }
 
-  resposeVoucher(dateToken: TokenComfiar, invoice: string, puntoVenta: number) {
+  resposeVoucher(dateToken: TokenComfiar, invoice: string, puntoVenta: number, tipo_transaccion: number) {
     const httpParams = new HttpParams()
       .append('token', dateToken.token)
       .append('date', dateToken.date)
       .append('invoice', invoice)
+      .append('tipo_transaccion', tipo_transaccion.toString())
       .append('puntoVenta', puntoVenta.toString());
     return this._http.post<ResponseModel>(`${this.apiBack}respuestaComprobante`, httpParams);
   }
 
-  donwloadPDF(dateToken: TokenComfiar, invoice: string, transaccion: number, puntoVenta: number) {
+  donwloadPDF(dateToken: TokenComfiar, invoice: string, transaccion: number, puntoVenta: number, tipo_transaccion: number) {
     const httpParams = new HttpParams()
       .append('token', dateToken.token)
       .append('date', dateToken.date)
       .append('transaccion', transaccion.toString())
       .append('invoice', invoice)
+      .append('tipo_transaccion', tipo_transaccion.toString())
       .append('puntoVenta', puntoVenta.toString());
     return this._http.post<ResponseModel>(`${this.apiBack}consultarpdf`, httpParams);
   }

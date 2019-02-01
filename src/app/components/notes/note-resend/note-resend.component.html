@@ -1,0 +1,77 @@
+<div class="grid-container">
+  <h1 class="mat-h1">Enviar Facturas</h1>
+  <div class="col-12">
+    <mat-form-field>
+      <input matInput #filter placeholder="Buscar">
+    </mat-form-field>
+    <div class="mat-elevation-z8">
+      <table mat-table class="full-width-table" [dataSource]="dataSource" matSort aria-label="Elements">
+        <!-- Consecutivo Column -->
+        <ng-container matColumnDef="consecutivo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
+          <td mat-cell *matCellDef="let row">{{row.consecutivo}}</td>
+        </ng-container>
+
+        <!-- Fecha Column -->
+        <ng-container matColumnDef="fecha">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha </th>
+          <td mat-cell *matCellDef="let element"> {{ element.fecha | date:'dd/MM/yyyy' }} </td>
+        </ng-container>
+
+        <!-- Tipo Nota Column -->
+        <ng-container matColumnDef="tipo_nota">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo Nota</th>
+          <td mat-cell *matCellDef="let row">{{row.tipo_nota}}</td>
+        </ng-container>
+
+        <!-- Nota Column -->
+        <ng-container matColumnDef="nota">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nota</th>
+          <td mat-cell *matCellDef="let row">{{row.nota}}</td>
+        </ng-container>
+
+        <!-- Empresa Column -->
+        <ng-container matColumnDef="empresa">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Empresa</th>
+          <td mat-cell *matCellDef="let row">{{row.empresa}}</td>
+        </ng-container>
+
+        <!-- Transacción Column -->
+        <ng-container matColumnDef="transaccion">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Transacción</th>
+          <td mat-cell *matCellDef="let row">{{row.transaccion}}</td>
+        </ng-container>
+
+        <!-- Punto Venta Column -->
+        <ng-container matColumnDef="punto_venta">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Punto Venta</th>
+          <td mat-cell *matCellDef="let row">{{row.punto_venta}}</td>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="enviar">
+          <th mat-header-cell *matHeaderCellDef> Consultar Cufe </th>
+          <td mat-cell *matCellDef="let element">
+            <mat-spinner *ngIf="element.status" [diameter]="40"></mat-spinner>
+            <button *ngIf="!element.status" (click)="reSend(element)" mat-icon-button>
+              <mat-icon aria-label="icon-button icon" color="primary">send</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <!-- Usuario Column -->
+        <ng-container matColumnDef="usuario">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Usuario </th>
+          <td mat-cell *matCellDef="let element"> {{element.usuario}} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator #paginator [pageIndex]="0" [pageSize]="50" [pageSizeOptions]="[25, 50, 100, 250]">
+      </mat-paginator>
+    </div>
+  </div>
+  <p-toast position="top-right"></p-toast>
+</div>

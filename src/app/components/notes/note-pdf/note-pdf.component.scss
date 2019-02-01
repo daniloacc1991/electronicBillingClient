@@ -1,0 +1,72 @@
+.full-width-table {
+  width: 100%;
+}
+
+.grid-container {
+  margin: 20px;
+}
+
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+.fa-file-pdf {
+  color: green;
+}
+
+@media (max-width: 599px) {
+  .table-responsive {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      -ms-overflow-style: -ms-autohiding-scrollbar;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .table-responsive {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      -ms-overflow-style: -ms-autohiding-scrollbar;
+  }
+}
+
+.icons-blue {
+  color: green !important;
+}
+
+.icons-red {
+  color: #f44336 !important;
+}
+
+.btn-icon {
+  padding: 0px 4px 0px 0px;
+  color: inherit;
+  background: 0 0;
+  flex-shrink: 0;
+  border-radius: 50%;
+  box-sizing: border-box;
+  position: relative;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: pointer;
+  outline: 0;
+  border: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent
+}
+
+.div-center {
+  text-align: left;
+}
+
+.tooltip-red {
+  background: #b71c1c;
+  font-size: 16px;
+}

@@ -6,12 +6,12 @@ import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
 
-import { RtaComprobanteModel, TokenComfiar } from '../../models';
-import { ErrorComponent } from '../shared/error/error.component';
+import { RtaComprobanteModel, TokenComfiar } from '../../../models';
+import { ErrorComponent } from '../../shared/error/error.component';
 
-import { InvoiceService } from '../../services/invoice.service';
-import { ComfiarService } from '../../services/index';
-import { AuthService } from '../../auth/auth.service';
+import { InvoiceService } from '../../../services/invoice.service';
+import { ComfiarService } from '../../../services/index';
+import { AuthService } from '../../../auth/auth.service';
 
 export interface InvoiceSentsElement {
   consecutivo: string;
@@ -24,6 +24,7 @@ export interface InvoiceSentsElement {
   save_local: boolean;
   status: boolean;
   transaccion: number;
+  tipo_transaccion: number;
   typeinvoce: string;
   msj: string;
 }
@@ -124,8 +125,9 @@ export class InvoicePdfComponent implements OnInit {
     const invoice = element.factura;
     const transaccion = element.transaccion;
     const puntoVenta = element.punto_venta;
+    const tipo_transaccion = element.tipo_transaccion;
     const tokenComfiar: TokenComfiar = await this._cs.validTokenComfiar();
-    this._cs.donwloadPDF(tokenComfiar, invoice, transaccion, puntoVenta)
+    this._cs.donwloadPDF(tokenComfiar, invoice, transaccion, puntoVenta, tipo_transaccion)
       .subscribe(
         resPDF => {
           this.converToPdf(resPDF.data.rows, invoice);
@@ -201,9 +203,10 @@ export class InvoicePdfComponent implements OnInit {
   async actualizarEstado(element: InvoiceSentsElement) {
     const invoice = element.factura;
     const puntoVenta = element.punto_venta;
+    const tipo_transaccion = element.tipo_transaccion;
     this.changeStatus(element);
     const tokenComfiar: TokenComfiar = await this._cs.validTokenComfiar();
-    this._cs.resposeVoucher(tokenComfiar, invoice, puntoVenta).subscribe(
+    this._cs.resposeVoucher(tokenComfiar, invoice, puntoVenta, tipo_transaccion).subscribe(
       resVoucher => {
         const rtaDian: RtaComprobanteModel = resVoucher.data.rows;
         rtaDian.invoice = invoice;

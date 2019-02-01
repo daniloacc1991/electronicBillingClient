@@ -1,4 +1,5 @@
 export interface RtaComprobanteModel {
+  transaccion: number;
   invoice: string;
   cufe: string;
   estado: string;

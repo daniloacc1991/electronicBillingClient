@@ -8,14 +8,14 @@ import { delay } from 'rxjs/operators';
 import { BehaviorSubject, fromEvent } from 'rxjs';
 import { MessageService } from 'primeng/components/common/messageservice';
 
-import { RtaComprobanteModel, TokenComfiar } from '../../models';
+import { RtaComprobanteModel, TokenComfiar } from '../../../models';
 import { InvoicePendingDataSource, InvoicePendingElement } from './invoice-pending.datasource';
 
-import { ErrorComponent } from '../shared/error/error.component';
+import { ErrorComponent } from '../../shared/error/error.component';
 
-import { InvoiceService } from '../../services/invoice.service';
-import { ComfiarService } from '../../services/index';
-import { AuthService } from '../../auth/auth.service';
+import { InvoiceService } from '../../../services/invoice.service';
+import { ComfiarService } from '../../../services/index';
+import { AuthService } from '../../../auth/auth.service';
 
 @Component({
   selector: 'app-invoice-pending',
@@ -41,7 +41,6 @@ export class InvoicePendingComponent implements OnInit {
   dataSource: InvoicePendingDataSource | null;
   _messageError: string;
   scopeUser: string;
-  lengthData = 0;
   _data: BehaviorSubject<InvoicePendingElement[]>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -101,13 +100,13 @@ export class InvoicePendingComponent implements OnInit {
     this.changeStatus(element);
     const puntoVenta = element.punto_venta;
     const invoice = element.factura;
+    const tipo_transaccion = element.tipo_transaccion;
     const tokenComfiar: TokenComfiar = await this._cs.validTokenComfiar();
     this._is.invoice(invoice)
-      .pipe(delay(2000))
       .subscribe(
         resInvoice => {
           const _xml = this.xmlparse(resInvoice.data.rows);
-          this._cs.sendInvoice(tokenComfiar, _xml, puntoVenta).subscribe(
+          this._cs.sendInvoice(tokenComfiar, _xml, puntoVenta, tipo_transaccion).subscribe(
             resSend => {
               const transaccion = resSend.data.rows.transaccion;
               this._is.saveTransaccion(invoice, transaccion)
@@ -125,7 +124,7 @@ export class InvoicePendingComponent implements OnInit {
                             { severity: 'info', summary: 'Salida Transacción', detail: resOut.data.rows.estado, life: 3000 }
                           );
                         } else {
-                          this._cs.resposeVoucher(tokenComfiar, invoice, puntoVenta).subscribe(
+                          this._cs.resposeVoucher(tokenComfiar, invoice, puntoVenta, tipo_transaccion).subscribe(
                             resVoucher => {
                               const rtaDian: RtaComprobanteModel = resVoucher.data.rows;
                               rtaDian.invoice = invoice;

@@ -48,7 +48,7 @@ export class LoginComfiarComponent implements OnInit {
     };
     this._cs.loginComfiar(this.loginForm.value.username, this.loginForm.value.password)
       .pipe(
-        delay(2000)
+        delay(1000)
       )
       .subscribe(
         res => {

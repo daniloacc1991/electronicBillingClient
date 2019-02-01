@@ -13,6 +13,7 @@ export interface InvoicePendingElement {
   status: boolean;
   typeinvoce: string;
   usuario: string;
+  tipo_transaccion: number;
 }
 
 // TODO: replace this with real data from your application

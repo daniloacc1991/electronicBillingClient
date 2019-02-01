@@ -12,6 +12,7 @@ export interface PendingCufeElement {
   transaccion: number;
   status: boolean;
   punto_venta: number;
+  tipo_transaccion: number;
 }
 
 // TODO: replace this with real data from your application
