@@ -4,10 +4,10 @@
 
 export const environment = {
   production: false,
-  // host: '172.27.142.28',
+  // host: '172.27.141.13',
   host: 'facturacionApi',
   port: 8080,
-  version: 'v2',
+  version: 'v3',
 };
 
 /*

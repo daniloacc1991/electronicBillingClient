@@ -32,6 +32,12 @@ import { AuthGuard } from './auth/auth.guard';
 import { AppRoutingModule } from './app-routing.module';
 import { Autorization } from './interceptors/authorization';
 
+import { AuthService } from './auth/auth.service';
+import { ExcelService } from './services/excel.service';
+import { ComfiarService } from './services/comfiar.service';
+import { InvoiceService } from './services/invoice.service';
+import { NoteService } from './services/note.service';
+
 import { AppComponent } from './app.component';
 import { NavigationComponent } from './components/shared/navigation/navigation.component';
 import { HomeComponent } from './components/home/home.component';
@@ -101,6 +107,11 @@ import { NotePdfComponent } from './components/notes/note-pdf/note-pdf.component
     LoginComfiarComponent
   ],
   providers: [
+    AuthService,
+    ComfiarService,
+    InvoiceService,
+    NoteService,
+    ExcelService,
     { provide: HTTP_INTERCEPTORS, useClass: Autorization, multi: true },
     AuthGuard
   ],

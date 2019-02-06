@@ -5,6 +5,8 @@ import { FormControl, Validators } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { Title } from '@angular/platform-browser';
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 
 import { RtaComprobanteModel, TokenComfiar } from '../../../models';
 import { ErrorComponent } from '../../shared/error/error.component';
@@ -12,6 +14,20 @@ import { ErrorComponent } from '../../shared/error/error.component';
 import { InvoiceService } from '../../../services/invoice.service';
 import { ComfiarService } from '../../../services/index';
 import { AuthService } from '../../../auth/auth.service';
+import { ExcelService } from '../../../services/excel.service';
+
+import * as moment from 'moment';
+export const MY_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY',
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
 
 export interface InvoiceSentsElement {
   consecutivo: string;
@@ -45,6 +61,11 @@ export interface InvoiceSentsElement {
         animate(100, style({ transform: 'translateX(100%)' }))
       ])
     ])
+  ],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },
+    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
+    { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
   ]
 })
 export class InvoicePdfComponent implements OnInit {
@@ -54,10 +75,10 @@ export class InvoicePdfComponent implements OnInit {
     inicio: null,
     fin: null
   };
-
+  scopeUser: string;
   fechaI: FormControl;
   fechaF: FormControl;
-  minDateFin: Date;
+  minDateFin: any;
   // maxDateFin = new Date() + 1;
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns: string[] = [
@@ -84,18 +105,20 @@ export class InvoicePdfComponent implements OnInit {
   constructor(private _is: InvoiceService,
     private _as: AuthService,
     private _cs: ComfiarService,
+    private _es: ExcelService,
     private _titleService: Title,
     public _dialogError: MatDialog) {
     this._titleService.setTitle('Descargar Facturas - Facturación Electrónica');
     this._as.setApplicationName('Descargar Facturas - Facturación Electrónica');
+    this.scopeUser = this._as.getToken().scope;
     if (!localStorage.getItem('descargaPDF')) {
-      this.valueFechas.inicio = new Date();
-      this.valueFechas.fin = new Date();
-      this.minDateFin = new Date();
+      this.valueFechas.inicio = moment();
+      this.valueFechas.fin = moment();
+      this.minDateFin = moment();
     } else {
-      this.valueFechas.inicio = new Date(JSON.parse(localStorage.getItem('descargaPDF')).inicio);
-      this.valueFechas.fin = new Date(JSON.parse(localStorage.getItem('descargaPDF')).fin);
-      this.minDateFin = new Date(JSON.parse(localStorage.getItem('descargaPDF')).inicio);
+      this.valueFechas.inicio = moment(JSON.parse(localStorage.getItem('descargaPDF')).inicio);
+      this.valueFechas.fin = moment(JSON.parse(localStorage.getItem('descargaPDF')).fin);
+      this.minDateFin = moment(JSON.parse(localStorage.getItem('descargaPDF')).inicio);
     }
   }
 
@@ -132,7 +155,9 @@ export class InvoicePdfComponent implements OnInit {
         resPDF => {
           this.converToPdf(resPDF.data.rows, invoice);
           this.changeStatus(element);
-          this.applyFilter('');
+          const fechaI = this.dateString(this.fechaI.value);
+          const fechaF = this.dateString(this.fechaF.value);
+          this.invoiceSent(fechaI, fechaF);
         },
         errPDF => {
           console.error(errPDF);
@@ -181,10 +206,7 @@ export class InvoicePdfComponent implements OnInit {
   }
 
   dateString(date: any) {
-    let month, day;
-    month = (date.getMonth() + 1) < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
-    day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
-    return `${date.getFullYear()}-${month}-${day}`;
+    return date.format('YYYY-MM-DD');
   }
 
   changeFechaI(event: MatDatepickerInputEvent<Date>) {
@@ -235,5 +257,9 @@ export class InvoicePdfComponent implements OnInit {
   changeStatus(e: InvoiceSentsElement) {
     const index = this.dataSource.data.indexOf(e, 0);
     this.dataSource.data[index].status = !this.dataSource.data[index].status;
+  }
+
+  saveExcel() {
+    this._es.exportAsExcelFile(this.dataSource.data, 'facturas_enviadas');
   }
 }

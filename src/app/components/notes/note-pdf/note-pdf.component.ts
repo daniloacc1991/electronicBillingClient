@@ -3,6 +3,8 @@ import { trigger, state, style, animate, transition } from '@angular/animations'
 import { MatPaginator, MatSort } from '@angular/material';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
+import { MomentDateAdapter } from '@angular/material-moment-adapter';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { fromEvent } from 'rxjs';
 
 import { NotePdfDataSource, NotePdfItem } from './note-pdf-datasource';
@@ -14,11 +16,29 @@ import { AuthService } from '../../../auth/auth.service';
 
 import { RtaComprobanteModel, TokenComfiar } from '../../../models';
 
+import * as moment from 'moment';
+export const MY_FORMATS = {
+  parse: {
+    dateInput: 'DD/MM/YYYY',
+  },
+  display: {
+    dateInput: 'DD/MM/YYYY',
+    monthYearLabel: 'MMMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
+
 @Component({
   selector: 'app-note-pdf',
   templateUrl: './note-pdf.component.html',
   styleUrls: ['./note-pdf.component.scss'],
-  providers: [MessageService],
+  providers: [
+    MessageService,
+    { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },
+    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
+    { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
+  ],
   animations: [
     trigger('flyInOut', [
       state('in', style({ transform: 'translateX(0)' })),
@@ -46,7 +66,7 @@ export class NotePdfComponent implements OnInit {
 
   fechaI: FormControl;
   fechaF: FormControl;
-  minDateFin: Date;
+  minDateFin: any;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns = [
@@ -67,13 +87,13 @@ export class NotePdfComponent implements OnInit {
     this._title.setTitle('Descargar PDF de Notas - Facturación Electrónica');
     this._as.setApplicationName('Descargar PDF de Notas - Facturación Electrónica');
     if (!localStorage.getItem('descargaNotaPDF')) {
-      this.valueFechas.inicio = new Date();
-      this.valueFechas.fin = new Date();
-      this.minDateFin = new Date();
+      this.valueFechas.inicio = moment();
+      this.valueFechas.fin = moment();
+      this.minDateFin = moment();
     } else {
-      this.valueFechas.inicio = new Date(JSON.parse(localStorage.getItem('descargaNotaPDF')).inicio);
-      this.valueFechas.fin = new Date(JSON.parse(localStorage.getItem('descargaNotaPDF')).fin);
-      this.minDateFin = new Date(JSON.parse(localStorage.getItem('descargaNotaPDF')).inicio);
+      this.valueFechas.inicio = moment(JSON.parse(localStorage.getItem('descargaNotaPDF')).inicio);
+      this.valueFechas.fin = moment(JSON.parse(localStorage.getItem('descargaNotaPDF')).fin);
+      this.minDateFin = moment(JSON.parse(localStorage.getItem('descargaNotaPDF')).inicio);
     }
   }
 
@@ -119,8 +139,10 @@ export class NotePdfComponent implements OnInit {
       .subscribe(
         resPDF => {
           this.converToPdf(resPDF.data.rows, note);
-          // this.changeStatus(element);
-          // this.applyFilter('');
+          this.changeStatus(element);
+          const fechaI = this.dateString(this.fechaI.value);
+          const fechaF = this.dateString(this.fechaF.value);
+          this.sent(fechaI, fechaF);
         },
         errPDF => {
           console.error(errPDF);
@@ -161,10 +183,7 @@ export class NotePdfComponent implements OnInit {
   }
 
   dateString(date: any) {
-    let month, day;
-    month = (date.getMonth() + 1) < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
-    day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
-    return `${date.getFullYear()}-${month}-${day}`;
+    return date.format('YYYY-MM-DD');
   }
 
   changeFechaI(event: MatDatepickerInputEvent<Date>) {

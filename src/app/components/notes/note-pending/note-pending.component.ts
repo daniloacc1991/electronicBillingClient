@@ -60,10 +60,6 @@ export class NotePendingComponent implements OnInit {
         res => {
           const data: NotePendingItem[] = res.data.rows;
           this.dataSource = new NotePendingDataSource(this.paginator, this.sort, data);
-          if (this._as.getToken().scope === 'ADMIN') {
-            this.scopeUser = this._as.getToken().scope;
-            this.displayedColumns.push('usuario');
-          }
         }
       );
   }

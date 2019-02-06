@@ -369,14 +369,3 @@ export class HomeComponent implements OnInit {
     }
   }
 }
-
-// @Component({
-//   selector: 'app-snack-bar',
-//   templateUrl: './snack-bar.component.html',
-//   styles: [`
-//   .example-pizza-party {
-//     color: hotpink;
-//   }
-// `],
-// })
-// export class SnackBarComponent { }

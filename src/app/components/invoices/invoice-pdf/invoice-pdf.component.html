@@ -1,5 +1,14 @@
 <div class="grid-container">
-  <h1 class="mat-h1">Descargar Facturas</h1>
+  <div class="col-12">
+    <div class="row">
+      <div class="col-md-11">
+        <h1 class="mat-h1">Descargar Facturas</h1>
+      </div>
+      <div *ngIf="scopeUser === 'ADMIN'" class="col-md-1">
+        <button mat-raised-button color="accent" (click)="saveExcel()">Excel<i class="material-icons">save_alt</i></button>
+      </div>
+    </div>
+  </div>
   <div class="col-12">
     <div class="row">
       <div class="col-md-6 col-xs-12">
@@ -25,7 +34,7 @@
               <mat-datepicker #fechaFin disabled="false"></mat-datepicker>
             </mat-form-field>
           </div>
-          <div class="col-mg 2">
+          <div class="col-md-2">
             <button mat-raised-button color="primary" (click)="consultar()">Consultar</button>
           </div>
         </div>
@@ -93,8 +102,7 @@
             <!-- Facturas Autorizadas -->
             <div *ngIf="element.estado_fe === 'AUTORIZADO' || element.estado_fe === 'ACEPTADO'" class="div-center">
               <mat-spinner *ngIf="element.status" [diameter]="40"></mat-spinner>
-              <button *ngIf="!element.status && !element.save_local" (click)="pdf(element)"
-                class="btn-icon">
+              <button *ngIf="!element.status && !element.save_local" (click)="pdf(element)" class="btn-icon">
                 <i class="fa-2x far fa-file-pdf"></i>
               </button>
               <a *ngIf="!element.status && element.save_local" href="{{ element.path_pdf }}" download="{{ element.factura }}"
@@ -114,11 +122,7 @@
             <!-- Facturas Rechazados -->
             <div *ngIf="element.estado_fe === 'RECHAZADO'" class="div-center">
               <mat-spinner *ngIf="element.status" [diameter]="40"></mat-spinner>
-              <button *ngIf="!element.status"
-                
-                matTooltip="{{ element.msj }}"
-                matTooltipClass="tooltip-red"
-                aria-label="Button that shows a red tooltip"
+              <button *ngIf="!element.status" matTooltip="{{ element.msj }}" matTooltipClass="tooltip-red" aria-label="Button that shows a red tooltip"
                 class="icons-red btn-icon">
                 <i class="material-icons">report</i>
               </button>
