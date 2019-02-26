@@ -72,6 +72,7 @@ export class NotePdfComponent implements OnInit {
   displayedColumns = [
     'consecutivo',
     'tipo_nota',
+    'factura',
     'nota', 'fecha',
     'empresa',
     'transaccion',
