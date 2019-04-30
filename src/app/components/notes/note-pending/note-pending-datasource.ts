@@ -8,6 +8,7 @@ import { Observable, of as observableOf, merge, BehaviorSubject } from 'rxjs';
 // TODO: Replace this with your own data model type
 export interface NotePendingItem {
   consecutivo: number;
+  factura: string;
   tipo_nota: string;
   nota: string;
   fecha: string;
@@ -98,8 +99,14 @@ export class NotePendingDataSource extends DataSource<NotePendingItem> {
     return data.sort((a, b) => {
       const isAsc = this.sort.direction === 'asc';
       switch (this.sort.active) {
-        case 'tipo_nota': return compare(a.tipo_nota, b.tipo_nota, isAsc);
-        case 'consecutivo': return compare(+a.consecutivo, +b.consecutivo, isAsc);
+        case 'consecutivo': return compare(a.consecutivo, b.consecutivo, isAsc);
+        case 'tipo_nota': return compare(+a.consecutivo, +b.consecutivo, isAsc);
+        case 'factura': return compare(+a.factura, +b.factura, isAsc);
+        case 'nota': return compare(+a.nota, +b.nota, isAsc);
+        case 'fecha': return compare(+a.fecha, +b.fecha, isAsc);
+        case 'empresa': return compare(+a.empresa, +b.empresa, isAsc);
+        case 'tipo_transaccion': return compare(+a.tipo_transaccion, +b.tipo_transaccion, isAsc);
+        case 'usuario': return compare(+a.usuario, +b.usuario, isAsc);
         default: return 0;
       }
     });

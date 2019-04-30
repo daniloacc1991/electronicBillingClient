@@ -13,10 +13,22 @@
           <td mat-cell *matCellDef="let row">{{row.consecutivo}}</td>
         </ng-container>
 
+        <!-- Factura Column -->
+        <ng-container matColumnDef="factura">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Factura</th>
+          <td mat-cell *matCellDef="let row">{{row.factura}}</td>
+        </ng-container>
+
         <!-- Tipo Nota Column -->
         <ng-container matColumnDef="tipo_nota">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo Nota</th>
           <td mat-cell *matCellDef="let row">{{row.tipo_nota}}</td>
+        </ng-container>
+
+        <!-- Fecha Column -->
+        <ng-container matColumnDef="fecha">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</th>
+          <td mat-cell *matCellDef="let row">{{row.fecha | date:'dd/MM/yyyy' }}</td>
         </ng-container>
 
         <!-- Nota Column -->

@@ -37,7 +37,7 @@ export class NotePendingComponent implements OnInit {
   scopeUser: string;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns = ['consecutivo', 'tipo_nota', 'nota', 'empresa', 'punto_venta', 'enviar', 'guardar'];
+  displayedColumns = ['consecutivo', 'factura', 'tipo_nota', 'nota', 'fecha', 'empresa', 'punto_venta', 'enviar', 'guardar'];
 
   constructor(private _ns: NoteService, private _cs: ComfiarService,
     private _as: AuthService,
@@ -105,7 +105,7 @@ export class NotePendingComponent implements OnInit {
                                     this.dataSource.deleteElement(element);
                                     this.messageService.add(
                                       {
-                                        severity: 'success',
+                                        severity: 'Success',
                                         summary: 'Guardando Respuesta Comprobante',
                                         detail: resCufe.data.rows.estado,
                                         life: 3000
