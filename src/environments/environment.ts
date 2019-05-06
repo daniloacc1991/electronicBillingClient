@@ -7,7 +7,7 @@ export const environment = {
   // host: '172.27.142.28',
   host: 'localhost',
   port: 8080,
-  version: 'v3',
+  version: 'v4',
 };
 
 /*
